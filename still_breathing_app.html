@@ -896,11 +896,11 @@ select:focus-visible,
         </div>
         <p class="mood-question">How are you feeling?</p>
         <div class="mood-emojis">
-          <div class="mood-emoji" data-mood="1" title="Very Sad">😢</div>
-          <div class="mood-emoji" data-mood="2" title="Sad">😕</div>
-          <div class="mood-emoji" data-mood="3" title="Neutral">😐</div>
-          <div class="mood-emoji" data-mood="4" title="Happy">😊</div>
-          <div class="mood-emoji" data-mood="5" title="Very Happy">😄</div>
+          <div class="mood-emoji" data-mood="1" title="Very Sad"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="2" title="Sad"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-1.5-4-1.5-4 1.5-4 1.5"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="3" title="Neutral"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="4" title="Happy"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="5" title="Very Happy"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></div>
         </div>
         <textarea class="mood-note" placeholder="Optional note" id="moodNote"></textarea>
         <button class="save-btn" onclick="saveMood()">Save</button>
@@ -1026,11 +1026,11 @@ select:focus-visible,
           <h4>How are you feeling now?</h4>
         </div>
         <div class="mood-emojis" style="margin: 20px 0;">
-          <div class="mood-emoji" data-mood="1"></div>
-          <div class="mood-emoji" data-mood="2">😕</div>
-          <div class="mood-emoji" data-mood="3">😐</div>
-          <div class="mood-emoji" data-mood="4">😊</div>
-          <div class="mood-emoji" data-mood="5">😄</div>
+          <div class="mood-emoji" data-mood="1"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-1.5-4-1.5-4 1.5-4 1.5"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="4"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mood-emoji" data-mood="5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></div>
         </div>
         <textarea class="mood-note" placeholder="Optional note" id="moodPageNote" style="margin-bottom: 12px;"></textarea>
         <button class="save-btn" onclick="saveMoodPage()">Save check-in</button>
@@ -1783,7 +1783,13 @@ function renderMoodHistory() {
     return;
   }
   
-  const moodEmojis = ['', '😢', '😕', '😐', '😊', '😄'];
+  const moodSvgs = {
+    1: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+    2: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-1.5-4-1.5-4 1.5-4 1.5"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+    3: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+    4: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+    5: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>'
+  };
   const sorted = [...appState.moodCheckins].sort((a, b) => new Date(b.date) - new Date(a.date));
   
   let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
@@ -1793,7 +1799,7 @@ function renderMoodHistory() {
     html += `
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-radius: 12px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="font-size: 32px;">${moodEmojis[checkin.mood]}</div>
+          <div style="width: 32px; height: 32px; color: var(--primary);">${moodSvgs[checkin.mood]}</div>
           <div>
             <p style="font-size: 13px; color: #868e96;">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
             ${checkin.note ? `<p style="font-size: 14px; margin-top: 4px;">${checkin.note}</p>` : ''}
