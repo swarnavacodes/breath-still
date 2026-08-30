@@ -1637,9 +1637,9 @@ function renderStreakWeek() {
   }
 }
 
-function renderWeekChart() {
+function renderWeekChart(targetId) {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const container = document.getElementById('weekChart');
+  const container = document.getElementById(targetId || 'weekChart');
   container.innerHTML = '';
   
   const today = new Date();
@@ -1812,9 +1812,7 @@ function renderMoodHistory() {
 }
 
 function renderHabitsChart() {
-  renderWeekChart();
-  const container = document.getElementById('habitsWeekChart');
-  container.innerHTML = document.getElementById('weekChart').innerHTML;
+  renderWeekChart('habitsWeekChart');
 }
 
 function updateInsights() {
@@ -1825,6 +1823,7 @@ function updateInsights() {
   document.getElementById('totalPracticeTime').textContent = `${totalMinutes} min`;
   
   const insightsContainer = document.getElementById('practiceMoodInsight');
+  renderWeekChart('insightsWeekChart');
   
   if (appState.sessions.length < 3) {
     insightsContainer.innerHTML = '<p style="color: #868e96;">Complete more sessions to see insights.</p>';
