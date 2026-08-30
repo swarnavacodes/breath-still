@@ -350,9 +350,8 @@ select:focus-visible,
   58% { transform: scale(1.08); border-color: #4ecdc4; }
 }
 
-.breathing-ring .check-icon { font-size: 32px; color: var(--primary); margin-bottom: 6px; }
-.breathing-ring .status { font-size: 21px; font-weight: 700; color: var(--primary); }
-.breathing-ring .count { font-size: 44px; font-weight: 800; color: var(--primary); margin-top: 6px; line-height: 1; }
+.breathing-ring .meditation-illustration { width: 140px; height: 140px; }
+.breathing-ring .phase-text { font-size: 22px; font-weight: 700; color: var(--primary); }
 
 /* Cards Grid */
 .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
@@ -857,9 +856,37 @@ select:focus-visible,
         <button class="start-btn" onclick="startBreathingSession()">Start session ▶</button>
       </div>
       <div class="breathing-ring" id="breathingRing">
-        <div class="check-icon">✓</div>
-        <div class="status">Ready</div>
-        <div class="count">4</div>
+        <svg class="meditation-illustration" width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Leaves background -->
+          <path d="M30 100C30 100 20 70 40 60C60 50 50 80 50 80" fill="#c5ddd8" opacity="0.6"/>
+          <path d="M25 90C25 90 15 65 35 55C55 45 45 75 45 75" fill="#a8d5ca" opacity="0.5"/>
+          <path d="M110 100C110 100 120 70 100 60C80 50 90 80 90 80" fill="#c5ddd8" opacity="0.6"/>
+          <path d="M115 90C115 90 125 65 105 55C85 45 95 75 95 75" fill="#a8d5ca" opacity="0.5"/>
+          <path d="M40 110C40 110 30 85 50 80C70 75 60 100 60 100" fill="#d4f0ec" opacity="0.5"/>
+          <path d="M100 110C100 110 110 85 90 80C70 75 80 100 80 100" fill="#d4f0ec" opacity="0.5"/>
+          <!-- Person body -->
+          <ellipse cx="70" cy="108" rx="28" ry="8" fill="#2A9D8F" opacity="0.3"/>
+          <!-- Crossed legs -->
+          <path d="M55 105C55 105 58 95 70 95C82 95 85 105 85 105" fill="#2A9D8F"/>
+          <!-- Torso -->
+          <rect x="60" y="62" width="20" height="35" rx="8" fill="#2A9D8F"/>
+          <!-- Arms in meditation pose -->
+          <path d="M60 72C60 72 45 80 42 88" stroke="#2A9D8F" stroke-width="5" stroke-linecap="round"/>
+          <path d="M80 72C80 72 95 80 98 88" stroke="#2A9D8F" stroke-width="5" stroke-linecap="round"/>
+          <!-- Hands -->
+          <circle cx="42" cy="89" r="3" fill="#f5c6a0"/>
+          <circle cx="98" cy="89" r="3" fill="#f5c6a0"/>
+          <!-- Head -->
+          <circle cx="70" cy="52" r="14" fill="#f5c6a0"/>
+          <!-- Hair -->
+          <path d="M56 48C56 38 64 32 70 32C76 32 84 38 84 48C84 48 80 36 70 36C60 36 56 48 56 48Z" fill="#4a3728"/>
+          <path d="M56 48C56 48 54 55 56 58" stroke="#4a3728" stroke-width="3" stroke-linecap="round"/>
+          <path d="M84 48C84 48 86 55 84 58" stroke="#4a3728" stroke-width="3" stroke-linecap="round"/>
+          <!-- Face -->
+          <circle cx="65" cy="52" r="1.2" fill="#4a3728"/>
+          <circle cx="75" cy="52" r="1.2" fill="#4a3728"/>
+          <path d="M67 57C67 57 70 60 73 57" stroke="#e8967a" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
       </div>
     </div>
 
