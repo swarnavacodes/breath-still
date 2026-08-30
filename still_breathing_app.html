@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Still — Breathing & Self-Awareness</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary: #2A9D8F;
+  --primary-dark: #238b7e;
+  --primary-darker: #1d7266;
+  --primary-light: #e8f8f5;
+  --primary-light-2: #d4f0ec;
+  --accent-orange: #e67e22;
+  --ink: #1a1a2e;
+  --muted: #868e96;
+  --muted-soft: #adb5bd;
+  --border: #e9ecef;
+  --border-soft: #f1f3f5;
+  --surface: #ffffff;
+  --bg: #f7f8fa;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+  --shadow-sm: 0 1px 2px rgba(20, 30, 40, 0.04), 0 1px 3px rgba(20, 30, 40, 0.06);
+  --shadow-md: 0 4px 14px rgba(20, 30, 40, 0.07);
+  --shadow-lg: 0 16px 40px rgba(20, 30, 40, 0.12);
+  --shadow-primary: 0 8px 20px rgba(42, 157, 143, 0.25);
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--primary-light-2);
+  color: var(--primary-darker);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d7dbe0; border-radius: 10px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: #c1c7cd; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: radial-gradient(circle at 100% 0%, #eefaf8 0%, var(--bg) 45%) fixed;
+  color: var(--ink);
+  display: flex;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a, button, input, select, textarea { font-family: inherit; }
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: var(--surface);
+  border-right: 1px solid var(--border-soft);
+  padding: 28px 18px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+  padding: 0 10px;
+}
+
+.logo-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #34b3a3 0%, #1d6b60 100%);
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 6px 16px rgba(42, 157, 143, 0.35);
+  position: relative;
+}
+
+.logo-icon::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 15px;
+  border: 1.5px solid rgba(42, 157, 143, .25);
+}
+
+.logo-text h1 {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+
+.logo-text p {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: .2px;
+}
+
+.nav-menu { list-style: none; flex: 1; }
+
+.nav-menu li { margin-bottom: 2px; }
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 14px;
+  text-decoration: none;
+  color: #5b6470;
+  border-radius: 11px;
+  font-size: 14.5px;
+  font-weight: 500;
+  transition: background .18s var(--ease), color .18s var(--ease);
+  cursor: pointer;
+  position: relative;
+}
+
+.nav-menu a:hover { background: var(--border-soft); color: var(--primary-darker); }
+
+.nav-menu a.active {
+  background: var(--primary-light);
+  color: var(--primary-darker);
+  font-weight: 600;
+}
+
+.nav-menu a.active::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 20px;
+  background: var(--primary);
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-menu a .icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-menu a .icon svg { width: 19px; height: 19px; stroke: currentColor; }
+
+.tip-card {
+  background: linear-gradient(150deg, #f2fbf9 0%, #e6f4f1 100%);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-top: auto;
+  border: 1px solid #dcefe9;
+}
+
+.tip-card h4 {
+  font-size: 12.5px;
+  color: var(--primary-darker);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+.tip-card p { font-size: 13px; color: #4d5761; line-height: 1.55; }
+
+/* Main Content */
+.main {
+  margin-left: 250px;
+  flex: 1;
+  padding: 34px 42px 60px;
+  max-width: 1400px;
+}
+
+.page { display: none; }
+
+.page.active { display: block; animation: fadeIn .35s var(--ease); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.header h2 { font-size: 30px; font-weight: 800; color: var(--ink); letter-spacing: -0.6px; }
+.header p { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
+
+.notification-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all .18s var(--ease);
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.notification-btn::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 11px;
+  width: 7px;
+  height: 7px;
+  background: var(--accent-orange);
+  border-radius: 50%;
+  border: 1.5px solid var(--surface);
+}
+
+.notification-btn:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+/* Breathing Card */
+.breathing-card {
+  background: linear-gradient(120deg, #e8f8f5 0%, #d9f1ec 55%, #cdeae3 100%);
+  border-radius: var(--radius-xl);
+  padding: 38px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  border: 1px solid #c3e6df;
+  box-shadow: 0 10px 30px rgba(42, 157, 143, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.breathing-card::before {
+  content: '';
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(255, 255, 255, .5), transparent 70%);
+  top: -100px;
+  right: -60px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.breathing-info { flex: 1; max-width: 480px; position: relative; z-index: 1; }
+
+.breathing-info h3 { font-size: 27px; font-weight: 800; color: var(--ink); margin-bottom: 10px; letter-spacing: -0.5px; }
+.breathing-info p { color: #4d5761; font-size: 14.5px; margin-bottom: 24px; line-height: 1.6; }
+
+.breathing-timers { display: flex; gap: 10px; margin-bottom: 26px; }
+
+.timer-box {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 14px 22px;
+  text-align: center;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-sm);
+  transition: all .2s var(--ease);
+  min-width: 76px;
+}
+
+.timer-box.active { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 4px 12px rgba(42, 157, 143, .18); }
+
+.timer-box .time { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1; }
+.timer-box .label { font-size: 11.5px; color: var(--muted); margin-top: 6px; font-weight: 600; }
+
+.start-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-darker));
+  color: #fff;
+  border: none;
+  padding: 15px 34px;
+  border-radius: var(--radius-md);
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all .2s var(--ease);
+  box-shadow: var(--shadow-primary);
+}
+
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(42, 157, 143, 0.4); }
+.start-btn:active { transform: translateY(0); }
+
+.breathing-ring {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 10px solid var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  box-shadow: 0 14px 40px rgba(42, 157, 143, 0.25), inset 0 0 0 6px #f4fdfb;
+  position: relative;
+  transition: all .3s var(--ease);
+  z-index: 1;
+}
+
+.breathing-ring.active { animation: breathe 19s infinite; }
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); border-color: var(--primary); }
+  21% { transform: scale(1.08); border-color: #4ecdc4; }
+  58% { transform: scale(1.08); border-color: #4ecdc4; }
+}
+
+.breathing-ring .check-icon { font-size: 32px; color: var(--primary); margin-bottom: 6px; }
+.breathing-ring .status { font-size: 21px; font-weight: 700; color: var(--primary); }
+.breathing-ring .count { font-size: 44px; font-weight: 800; color: var(--primary); margin-top: 6px; line-height: 1; }
+
+/* Cards Grid */
+.cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+  transition: all .22s var(--ease);
+}
+
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: #e2e6ea; }
+
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.card-header h4 { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -.1px; }
+.card-header .view-all { font-size: 12.5px; color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer; transition: color .15s; }
+.card-header .view-all:hover { color: var(--primary-darker); }
+
+/* Progress Card */
+.progress-content { display: flex; align-items: center; gap: 18px; }
+.progress-ring-container { position: relative; width: 92px; height: 92px; flex-shrink: 0; }
+
+.progress-ring {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 7px solid var(--border-soft);
+  border-top-color: var(--primary);
+  border-right-color: var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all .3s var(--ease);
+}
+
+.progress-ring .num { font-size: 25px; font-weight: 800; color: var(--ink); line-height: 1; }
+.progress-ring .den { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.progress-text h5 { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.progress-text p { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+.progress-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+/* Mood Card */
+.mood-question { font-size: 13.5px; color: var(--muted); margin-bottom: 16px; }
+.mood-emojis { display: flex; gap: 10px; margin-bottom: 18px; }
+
+.mood-emoji {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  cursor: pointer;
+  transition: all .18s var(--ease);
+  background: var(--border-soft);
+}
+
+.mood-emoji:hover { transform: translateY(-3px) scale(1.06); }
+
+.mood-emoji.selected {
+  border-color: var(--primary);
+  box-shadow: 0 6px 16px rgba(42, 157, 143, 0.3);
+  transform: translateY(-3px) scale(1.1);
+}
+
+.mood-emoji[data-mood="1"] { background: #ffe0e0; }
+.mood-emoji[data-mood="2"] { background: #ffe8cc; }
+.mood-emoji[data-mood="3"] { background: #fff4cc; }
+.mood-emoji[data-mood="4"] { background: #d4f0ec; }
+.mood-emoji[data-mood="5"] { background: #b8e6d9; }
+
+.mood-note {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  margin-bottom: 12px;
+  font-family: inherit;
+  resize: none;
+  transition: border-color .18s, background .18s;
+  background: var(--bg);
+}
+
+.mood-note:focus { outline: none; border-color: var(--primary); background: var(--surface); }
+
+.save-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: all .18s var(--ease);
+}
+
+.save-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-primary); }
+
+/* Streak Card */
+.streak-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+
+.streak-days {
+  color: var(--accent-orange);
+  font-weight: 800;
+  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef3e8;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.streak-label { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; }
+.streak-week { display: flex; gap: 10px; justify-content: space-between; }
+.streak-day { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.streak-day .day-label { font-size: 10.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
+
+.streak-day .day-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-darker));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  transition: all .18s;
+  box-shadow: 0 3px 8px rgba(42, 157, 143, .3);
+}
+
+.streak-day .day-dot.empty { background: var(--border-soft); color: var(--muted-soft); box-shadow: none; }
+
+/* Bottom Grid */
+.bottom-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+
+/* Week Overview */
+.week-chart { display: flex; align-items: flex-end; gap: 14px; height: 140px; padding-top: 20px; }
+.week-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+.week-bar .bar {
+  width: 100%;
+  max-width: 34px;
+  background: linear-gradient(180deg, #bfe6de, #a4dbd0);
+  border-radius: 8px 8px 3px 3px;
+  transition: all .3s var(--ease);
+}
+
+.week-bar .bar.active { background: linear-gradient(180deg, #4ecdc4, var(--primary)); }
+.week-bar .bar-label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.week-bar .bar-value { font-size: 10.5px; color: var(--muted-soft); }
+
+/* Insights Card */
+.insights-content { display: flex; gap: 15px; align-items: flex-start; }
+
+.insights-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-light-2));
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  flex-shrink: 0;
+}
+
+.insights-text p { font-size: 13.5px; color: #4d5761; line-height: 1.7; }
+.insights-text p strong { color: var(--primary); font-weight: 700; }
+
+/* Breathe Page */
+.breath-practices { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 22px; }
+
+.practice-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  border: 2px solid var(--border-soft);
+  cursor: pointer;
+  transition: all .22s var(--ease);
+}
+
+.practice-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+.practice-card.selected {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-light-2) 100%);
+  box-shadow: 0 6px 20px rgba(42, 157, 143, 0.22);
+}
+
+.practice-card h4 { font-size: 19px; font-weight: 800; margin-bottom: 8px; color: var(--ink); }
+.practice-card p { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+
+.practice-timing { display: flex; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
+.timing-item { text-align: center; flex: 1; }
+.timing-item .time { font-size: 19px; font-weight: 800; color: var(--primary); }
+.timing-item .label { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+
+.begin-practice-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  width: 100%;
+  transition: all .18s;
+}
+
+.begin-practice-btn:hover { background: var(--primary-dark); }
+
+/* Session Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 25, 30, 0.55);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+.modal-overlay.active { display: flex; animation: overlayIn .25s var(--ease); }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+.session-modal {
+  background: var(--surface);
+  border-radius: 28px;
+  padding: 42px;
+  max-width: 460px;
+  width: 90%;
+  text-align: center;
+  animation: modalSlide .35s var(--ease);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes modalSlide {
+  from { transform: translateY(-30px) scale(.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.session-modal h3 { font-size: 25px; margin-bottom: 6px; color: var(--ink); font-weight: 800; }
+.session-modal .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+
+.session-modal .close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all .18s;
+  background: none;
+  border: none;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.session-modal .close-btn:hover { color: var(--ink); background: var(--border-soft); }
+
+/* Breathing Circle with Progress Ring */
+.breathing-container { position: relative; width: 280px; height: 280px; margin: 0 auto 26px; }
+.progress-ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: var(--border-soft); stroke-width: 7; }
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 7;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+  filter: drop-shadow(0 0 6px rgba(42, 157, 143, .5));
+}
+
+.breath-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 244px;
+  height: 244px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eefbf8 0%, #d4f0ec 100%);
+  border: 8px solid var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all .3s var(--ease);
+  box-shadow: inset 0 0 0 6px #fff;
+}
+
+.breath-circle.breathing { animation: breathExpand 19s infinite; }
+
+@keyframes breathExpand {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  21% { transform: translate(-50%, -50%) scale(1.08); }
+  58% { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+.breath-circle .phase-text { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 10px; letter-spacing: -.3px; }
+.breath-circle .countdown { font-size: 64px; font-weight: 800; color: var(--primary); line-height: 1; }
+
+.session-time-display { color: var(--muted); font-size: 14px; margin-bottom: 22px; font-weight: 600; }
+.session-controls { display: flex; gap: 12px; justify-content: center; }
+
+.control-btn {
+  padding: 13px 30px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s var(--ease);
+}
+
+.control-btn.primary { background: linear-gradient(135deg, var(--primary), var(--primary-darker)); color: #fff; box-shadow: var(--shadow-primary); }
+.control-btn.secondary { background: var(--border-soft); color: #495057; }
+.control-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* Settings Page */
+.settings-section {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 26px 28px;
+  margin-bottom: 18px;
+  border: 1px solid var(--border-soft);
+}
+
+.settings-section h3 { font-size: 18px; margin-bottom: 20px; color: var(--ink); font-weight: 800; }
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.setting-item:last-child { border-bottom: none; }
+.setting-label h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 3px; }
+.setting-label p { font-size: 12.5px; color: var(--muted); }
+
+.setting-control select,
+.setting-control input[type="text"] {
+  padding: 10px 15px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .18s, background .18s;
+  background: var(--bg);
+}
+
+.setting-control select:focus,
+.setting-control input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+/* Toggle switch (checkbox) */
+.setting-control input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 42px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  transition: background .22s var(--ease);
+  border: none;
+  flex-shrink: 0;
+}
+
+.setting-control input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .22s var(--ease);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+
+.setting-control input[type="checkbox"]:checked { background: var(--primary); }
+.setting-control input[type="checkbox"]:checked::before { transform: translateX(18px); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .cards-grid { grid-template-columns: 1fr 1fr; }
+  .bottom-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+  .breathing-card { flex-direction: column; text-align: center; gap: 24px; }
+  .breathing-timers { justify-content: center; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .breathing-container { width: 260px; height: 260px; }
+  .breath-circle { width: 220px; height: 220px; }
+}
+
+/* Utility */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🧘</div>
+    <div class="logo-text">
+      <h1>Still</h1>
+      <p>Breathe. Feel. Grow.</p>
+    </div>
+  </div>
+
+  <ul class="nav-menu">
+    <li><a href="#" class="active" data-page="home"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5l9-7 9 7V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span> Home</a></li>
+    <li><a href="#" data-page="breathe"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg></span> Breathe</a></li>
+    <li><a href="#" data-page="habits"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span> Habits</a></li>
+    <li><a href="#" data-page="mood"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 13.5s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9.5" x2="9.01" y2="9.5"/><line x1="15" y1="9.5" x2="15.01" y2="9.5"/></svg></span> Mood</a></li>
+    <li><a href="#" data-page="insights"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21.5h4"/><path d="M12 2.5a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2.5z"/></svg></span> Insights</a></li>
+    <li><a href="#" data-page="history"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span> History</a></li>
+    <li><a href="#" data-page="settings"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span> Settings</a></li>
+  </ul>
+
+  <div class="tip-card">
+    <h4>🌿 Tip of the day</h4>
+    <p id="dailyTip">A few intentional breaths can create a small pause between a trigger and your response.</p>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Home Page -->
+  <div id="home" class="page active">
+    <div class="header">
+      <div>
+        <h2 id="greeting">Good morning 👋</h2>
+        <p id="dateDisplay">Take a deep breath and check in with yourself.</p>
+      </div>
+      <button class="notification-btn">🔔</button>
+    </div>
+
+    <!-- Breathing Card -->
+    <div class="breathing-card">
+      <div class="breathing-info">
+        <h3>4-7-8 Breathing</h3>
+        <p>Relax your mind, slow your body, and create a little space.</p>
+        <div class="breathing-timers">
+          <div class="timer-box active">
+            <div class="time">4s</div>
+            <div class="label">Inhale</div>
+          </div>
+          <div class="timer-box">
+            <div class="time">7s</div>
+            <div class="label">Hold</div>
+          </div>
+          <div class="timer-box">
+            <div class="time">8s</div>
+            <div class="label">Exhale</div>
+          </div>
+        </div>
+        <button class="start-btn" onclick="startBreathingSession()">Start session ▶</button>
+      </div>
+      <div class="breathing-ring" id="breathingRing">
+        <div class="check-icon">✓</div>
+        <div class="status">Ready</div>
+        <div class="count">4</div>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid">
+      <!-- Today's Progress -->
+      <div class="card">
+        <div class="card-header">
+          <h4>Today's progress</h4>
+        </div>
+        <div class="progress-content">
+          <div class="progress-ring-container">
+            <div class="progress-ring" id="todayProgressRing">
+              <span class="num" id="todaySessions">0</span>
+              <span class="den">/ <span id="dailyGoal">5</span></span>
+            </div>
+          </div>
+          <div class="progress-text">
+            <h5 id="progressMessage">Keep going!</h5>
+            <p>Small consistency beats occasional perfection.</p>
+          </div>
+        </div>
+        <div class="progress-label">Sessions completed</div>
+      </div>
+
+      <!-- Current Mood -->
+      <div class="card">
+        <div class="card-header">
+          <h4>Current mood</h4>
+        </div>
+        <p class="mood-question">How are you feeling?</p>
+        <div class="mood-emojis">
+          <div class="mood-emoji" data-mood="1" title="Very Sad">😢</div>
+          <div class="mood-emoji" data-mood="2" title="Sad">😕</div>
+          <div class="mood-emoji" data-mood="3" title="Neutral">😐</div>
+          <div class="mood-emoji" data-mood="4" title="Happy">😊</div>
+          <div class="mood-emoji" data-mood="5" title="Very Happy">😄</div>
+        </div>
+        <textarea class="mood-note" placeholder="Optional note" id="moodNote"></textarea>
+        <button class="save-btn" onclick="saveMood()">Save</button>
+      </div>
+
+      <!-- Habit Streak -->
+      <div class="card">
+        <div class="streak-header">
+          <h4>Habit streak</h4>
+          <span class="streak-days" id="streakDisplay"> 0 days</span>
+        </div>
+        <p class="streak-label">Keep it going!</p>
+        <div class="streak-week" id="streakWeek">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="bottom-grid">
+      <!-- This Week Overview -->
+      <div class="card">
+        <div class="card-header">
+          <h4>This week overview</h4>
+          <span class="view-all" onclick="navigateTo('insights')">View insights →</span>
+        </div>
+        <div class="week-chart" id="weekChart">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div class="card">
+        <div class="card-header">
+          <h4>Insights</h4>
+        </div>
+        <div class="insights-content">
+          <div class="insights-icon">💡</div>
+          <div class="insights-text" id="insightsText">
+            <p>Start your breathing practice to see personalized insights.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breathe Page -->
+  <div id="breathe" class="page">
+    <div class="header">
+      <div>
+        <h2>Breathe</h2>
+        <p>Choose a pattern that fits this moment.</p>
+      </div>
+    </div>
+
+    <div class="breath-practices" id="breathPractices">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <!-- Habits Page -->
+  <div id="habits" class="page">
+    <div class="header">
+      <div>
+        <h2>Habits</h2>
+        <p>A gentle view of your breathing routine.</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-header">
+          <h4>Weekly practice</h4>
+        </div>
+        <div class="setting-item">
+          <div class="setting-label">
+            <h4>Goal</h4>
+            <p>Daily sessions</p>
+          </div>
+          <div class="setting-control">
+            <select id="habitGoal" onchange="updateGoal()">
+              <option value="3">3</option>
+              <option value="5" selected>5</option>
+              <option value="7">7</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-label">
+            <h4>Longest streak</h4>
+            <p>days in a row</p>
+          </div>
+          <div class="setting-control">
+            <strong id="longestStreak" style="font-size: 20px; color: #2A9D8F;">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="grid-column: span 2;">
+        <div class="card-header">
+          <h4>This week overview</h4>
+        </div>
+        <div class="week-chart" id="habitsWeekChart">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mood Page -->
+  <div id="mood" class="page">
+    <div class="header">
+      <div>
+        <h2>Mood</h2>
+        <p>Notice patterns without judging them.</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-header">
+          <h4>How are you feeling now?</h4>
+        </div>
+        <div class="mood-emojis" style="margin: 20px 0;">
+          <div class="mood-emoji" data-mood="1"></div>
+          <div class="mood-emoji" data-mood="2">😕</div>
+          <div class="mood-emoji" data-mood="3">😐</div>
+          <div class="mood-emoji" data-mood="4">😊</div>
+          <div class="mood-emoji" data-mood="5">😄</div>
+        </div>
+        <textarea class="mood-note" placeholder="Optional note" id="moodPageNote" style="margin-bottom: 12px;"></textarea>
+        <button class="save-btn" onclick="saveMoodPage()">Save check-in</button>
+      </div>
+
+      <div class="card" style="grid-column: span 2;">
+        <div class="card-header">
+          <h4>Mood history</h4>
+        </div>
+        <div id="moodHistory">
+          <p style="color: #868e96; text-align: center; padding: 40px;">No mood check-ins yet. Start tracking your mood!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insights Page -->
+  <div id="insights" class="page">
+    <div class="header">
+      <div>
+        <h2>Insights</h2>
+        <p>What your practice is telling you.</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-header">
+          <h4>Practice & mood</h4>
+        </div>
+        <p style="color: #868e96; font-size: 14px; margin-bottom: 16px;">Based on your check-ins</p>
+        <div id="practiceMoodInsight">
+          <p style="color: #868e96;">Complete more sessions to see insights.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h4>Sessions this week</h4>
+        </div>
+        <h2 style="font-size: 48px; color: #2A9D8F; margin: 20px 0; font-weight: 700;" id="weeklySessions">0</h2>
+        <p style="color: #868e96;">Completed breathing sessions</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h4>Total practice</h4>
+        </div>
+        <h2 style="font-size: 48px; color: #2A9D8F; margin: 20px 0; font-weight: 700;" id="totalPracticeTime">0 min</h2>
+        <p style="color: #868e96;">Across all sessions</p>
+      </div>
+    </div>
+
+    <div class="card mt-20">
+      <div class="card-header">
+        <h4>This Week Overview</h4>
+      </div>
+      <div class="week-chart" id="insightsWeekChart">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- History Page -->
+  <div id="history" class="page">
+    <div class="header">
+      <div>
+        <h2>History</h2>
+        <p>Every session is a small act of attention.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h4>All sessions</h4>
+      </div>
+      <div id="sessionHistory">
+        <p style="color: #868e96; text-align: center; padding: 40px;">No sessions yet. Start your first breathing practice!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Page -->
+  <div id="settings" class="page">
+    <div class="header">
+      <div>
+        <h2>Settings</h2>
+        <p>Keep Still simple and useful.</p>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Personalize</h3>
+      <div class="setting-item">
+        <div class="setting-label">
+          <h4>Your name</h4>
+          <p>How should we address you?</p>
+        </div>
+        <div class="setting-control">
+          <input type="text" id="userName" placeholder="Enter your name" onchange="updateUserName()">
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h4>Daily session goal</h4>
+          <p>Number of sessions per day</p>
+        </div>
+        <div class="setting-control">
+          <select id="settingsDailyGoal" onchange="updateDailyGoal()">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="7">7</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h4>Default practice</h4>
+          <p>Your preferred breathing pattern</p>
+        </div>
+        <div class="setting-control">
+          <select id="defaultPractice" onchange="updateDefaultPractice()">
+            <option value="4-7-8" selected>4-7-8</option>
+            <option value="box">Box breathing (4-4-4-4)</option>
+            <option value="4-6">Relax (4-6)</option>
+            <option value="5-5">Coherent (5-5)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <h4>Session sound cues</h4>
+          <p>Play sounds during breathing</p>
+        </div>
+        <div class="setting-control">
+          <input type="checkbox" id="soundCues" checked>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Data</h3>
+      <div class="setting-item">
+        <div class="setting-label">
+          <h4>Reset demo data</h4>
+          <p>Clear all your saved data</p>
+        </div>
+        <div class="setting-control">
+          <button class="control-btn secondary" onclick="resetData()">Reset Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Session Modal - IMPROVED WITH PROGRESS RING -->
+<div class="modal-overlay" id="sessionModal">
+  <div class="session-modal" style="position: relative;">
+    <button class="close-btn" onclick="closeSessionModal()">×</button>
+    <h3 id="sessionTitle">4-7-8 Breathing</h3>
+    <p class="subtitle">Follow the circle</p>
+    
+    <div class="breathing-container">
+      <!-- SVG Progress Ring -->
+      <svg class="progress-ring-svg" viewBox="0 0 320 320">
+        <circle class="progress-ring-bg" cx="160" cy="160" r="150"></circle>
+        <circle class="progress-ring-fill" id="progressRingFill" cx="160" cy="160" r="150"
+          stroke-dasharray="942.48"
+          stroke-dashoffset="0"></circle>
+      </svg>
+      
+      <!-- Breathing Circle -->
+      <div class="breath-circle" id="breathCircle">
+        <div class="phase-text" id="phaseText">Ready</div>
+        <div class="countdown" id="countdown">4</div>
+      </div>
+    </div>
+
+    <div class="session-time-display">
+      Session remaining · <span id="sessionTime">05:00</span>
+    </div>
+
+    <div class="session-controls">
+      <button class="control-btn secondary" onclick="pauseSession()">Pause</button>
+      <button class="control-btn primary" onclick="finishSession()">Finish early</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// App State
+const appState = {
+  currentUser: '',
+  dailyGoal: 5,
+  defaultPractice: '4-7-8',
+  sessions: [],
+  moodCheckins: [],
+  currentStreak: 0,
+  longestStreak: 0,
+  lastPracticeDate: null,
+  currentSession: null,
+  soundEnabled: true
+};
+
+// Breathing patterns
+const breathingPatterns = {
+  '4-7-8': { name: '4-7-8 Breathing', inhale: 4, hold: 7, exhale: 8, description: 'Relax your mind, slow your body, and create a little space.' },
+  'box': { name: 'Box Breathing', inhale: 4, hold: 4, exhale: 4, description: 'Equal breathing for focus and calm.' },
+  '4-6': { name: 'Relax Breathing', inhale: 4, hold: 0, exhale: 6, description: 'Longer exhale for relaxation.' },
+  '5-5': { name: 'Coherent Breathing', inhale: 5, hold: 0, exhale: 5, description: 'Balanced breathing for harmony.' }
+};
+
+// Daily tips
+const dailyTips = [
+  "A few intentional breaths can create a small pause between a trigger and your response.",
+  "Your breath is always with you — a portable anchor to the present moment.",
+  "Consistency beats intensity. Even 2 minutes matters.",
+  "Notice how your body feels after a breathing session.",
+  "The space between breaths holds stillness.",
+  "Breathe in courage, breathe out fear.",
+  "Your mind follows your breath. Lead it gently."
+];
+
+// Session timer variables
+let sessionTimer = null;
+let sessionTimeRemaining = 300; // 5 minutes in seconds
+let sessionInterval = null;
+
+// Initialize App
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  initializeNavigation();
+  initializeMoodSelectors();
+  updateDisplay();
+  renderStreakWeek();
+  renderWeekChart();
+  renderBreathPractices();
+  updateGreeting();
+  updateDateDisplay();
+});
+
+// Local Storage Functions (with in-memory fallback if storage access is blocked)
+let memoryStore = null;
+
+function saveData() {
+  try {
+    localStorage.setItem('stillAppState', JSON.stringify(appState));
+  } catch (e) {
+    memoryStore = JSON.stringify(appState);
+  }
+}
+
+function loadData() {
+  let saved = null;
+  try {
+    saved = localStorage.getItem('stillAppState');
+  } catch (e) {
+    saved = memoryStore;
+  }
+  if (saved) {
+    const data = JSON.parse(saved);
+    Object.assign(appState, data);
+  }
+}
+
+function resetData() {
+  if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+    try { localStorage.removeItem('stillAppState'); } catch (e) { memoryStore = null; }
+    location.reload();
+  }
+}
+
+// Navigation
+function initializeNavigation() {
+  document.querySelectorAll('.nav-menu a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = link.getAttribute('data-page');
+      navigateTo(page);
+    });
+  });
+}
+
+function navigateTo(pageName) {
+  document.querySelectorAll('.nav-menu a').forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('data-page') === pageName) {
+      link.classList.add('active');
+    }
+  });
+
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.remove('active');
+  });
+  document.getElementById(pageName).classList.add('active');
+
+  if (pageName === 'history') renderSessionHistory();
+  if (pageName === 'mood') renderMoodHistory();
+  if (pageName === 'insights') updateInsights();
+  if (pageName === 'habits') renderHabitsChart();
+}
+
+// Mood Selectors
+function initializeMoodSelectors() {
+  document.querySelectorAll('.mood-emoji').forEach(emoji => {
+    emoji.addEventListener('click', function() {
+      this.parentElement.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+}
+
+// Save Mood
+function saveMood() {
+  const selected = document.querySelector('.mood-emoji.selected');
+  if (!selected) {
+    alert('Please select a mood first.');
+    return;
+  }
+
+  const mood = parseInt(selected.getAttribute('data-mood'));
+  const note = document.getElementById('moodNote').value.trim();
+
+  appState.moodCheckins.push({
+    date: new Date().toISOString(),
+    mood: mood,
+    note: note
+  });
+
+  saveData();
+  
+  document.getElementById('moodNote').value = '';
+  document.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
+  
+  alert('Mood saved!');
+  updateInsights();
+}
+
+function saveMoodPage() {
+  const selected = document.querySelector('#mood .mood-emoji.selected');
+  if (!selected) {
+    alert('Please select a mood first.');
+    return;
+  }
+
+  const mood = parseInt(selected.getAttribute('data-mood'));
+  const note = document.getElementById('moodPageNote').value.trim();
+
+  appState.moodCheckins.push({
+    date: new Date().toISOString(),
+    mood: mood,
+    note: note
+  });
+
+  saveData();
+  
+  document.getElementById('moodPageNote').value = '';
+  document.querySelectorAll('#mood .mood-emoji').forEach(e => e.classList.remove('selected'));
+  
+  alert('Mood check-in saved!');
+  renderMoodHistory();
+}
+
+// Breathing Session - IMPROVED
+function startBreathingSession() {
+  const pattern = breathingPatterns[appState.defaultPractice];
+  appState.currentSession = {
+    pattern: appState.defaultPractice,
+    startTime: new Date().toISOString(),
+    cycles: 0
+  };
+
+  sessionTimeRemaining = 300; // Reset to 5 minutes
+  document.getElementById('sessionTitle').textContent = pattern.name;
+  document.getElementById('sessionModal').classList.add('active');
+  
+  // Start session countdown
+  startSessionCountdown();
+  
+  // Start breathing cycle after 1 second
+  setTimeout(() => startBreathingCycle(pattern), 1000);
+}
+
+function startSessionCountdown() {
+  updateSessionTimeDisplay();
+  
+  sessionInterval = setInterval(() => {
+    sessionTimeRemaining--;
+    updateSessionTimeDisplay();
+    updateProgressRing();
+    
+    if (sessionTimeRemaining <= 0) {
+      clearInterval(sessionInterval);
+      finishSession();
+    }
+  }, 1000);
+}
+
+function updateSessionTimeDisplay() {
+  const minutes = Math.floor(sessionTimeRemaining / 60);
+  const seconds = sessionTimeRemaining % 60;
+  const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  document.getElementById('sessionTime').textContent = timeString;
+}
+
+function updateProgressRing() {
+  const circle = document.getElementById('progressRingFill');
+  const radius = 150;
+  const circumference = 2 * Math.PI * radius; // 942.48
+  const progress = sessionTimeRemaining / 300; // 300 seconds = 5 minutes
+  const offset = circumference - (progress * circumference);
+  
+  circle.style.strokeDashoffset = offset;
+}
+
+function startBreathingCycle(pattern) {
+  if (!document.getElementById('sessionModal').classList.contains('active')) return;
+
+  const circle = document.getElementById('breathCircle');
+  const phaseText = document.getElementById('phaseText');
+  const countdown = document.getElementById('countdown');
+
+  // Inhale
+  circle.classList.add('breathing');
+  phaseText.textContent = 'Inhale';
+  countdown.textContent = pattern.inhale;
+  
+  let timeLeft = pattern.inhale;
+  const inhaleInterval = setInterval(() => {
+    timeLeft--;
+    countdown.textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(inhaleInterval);
+      
+      if (pattern.hold > 0) {
+        // Hold
+        phaseText.textContent = 'Hold';
+        countdown.textContent = pattern.hold;
+        timeLeft = pattern.hold;
+        
+        const holdInterval = setInterval(() => {
+          timeLeft--;
+          countdown.textContent = timeLeft;
+          if (timeLeft <= 0) {
+            clearInterval(holdInterval);
+            startExhale();
+          }
+        }, 1000);
+      } else {
+        startExhale();
+      }
+    }
+  }, 1000);
+
+  function startExhale() {
+    phaseText.textContent = 'Exhale';
+    countdown.textContent = pattern.exhale;
+    timeLeft = pattern.exhale;
+    
+    const exhaleInterval = setInterval(() => {
+      timeLeft--;
+      countdown.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(exhaleInterval);
+        circle.classList.remove('breathing');
+        appState.currentSession.cycles++;
+        
+        // Continue or finish
+        setTimeout(() => startBreathingCycle(pattern), 1000);
+      }
+    }, 1000);
+  }
+}
+
+function pauseSession() {
+  if (sessionInterval) {
+    clearInterval(sessionInterval);
+    sessionInterval = null;
+    alert('Session paused. Click OK to resume.');
+    startSessionCountdown();
+  }
+}
+
+function finishSession() {
+  if (sessionInterval) {
+    clearInterval(sessionInterval);
+    sessionInterval = null;
+  }
+
+  if (appState.currentSession) {
+    const duration = Math.floor((300 - sessionTimeRemaining) / 60);
+    
+    appState.sessions.push({
+      ...appState.currentSession,
+      endTime: new Date().toISOString(),
+      duration: duration > 0 ? duration : 1
+    });
+
+    updateStreak();
+    updateTodayProgress();
+    
+    appState.currentSession = null;
+    saveData();
+  }
+
+  closeSessionModal();
+  updateDisplay();
+  alert('Session completed! Great job. 🎉');
+}
+
+function closeSessionModal() {
+  if (sessionInterval) {
+    clearInterval(sessionInterval);
+    sessionInterval = null;
+  }
+  
+  document.getElementById('sessionModal').classList.remove('active');
+  document.getElementById('breathCircle').classList.remove('breathing');
+  appState.currentSession = null;
+  
+  // Reset progress ring
+  const circle = document.getElementById('progressRingFill');
+  circle.style.strokeDashoffset = 0;
+}
+
+// Streak Management
+function updateStreak() {
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  
+  if (appState.lastPracticeDate === today) return;
+  
+  if (appState.lastPracticeDate === yesterday) {
+    appState.currentStreak++;
+  } else {
+    appState.currentStreak = 1;
+  }
+  
+  appState.lastPracticeDate = today;
+  
+  if (appState.currentStreak > appState.longestStreak) {
+    appState.longestStreak = appState.currentStreak;
+  }
+}
+
+// Progress Tracking
+function updateTodayProgress() {
+  const today = new Date().toDateString();
+  const todaySessions = appState.sessions.filter(s => 
+    new Date(s.startTime).toDateString() === today
+  ).length;
+  
+  return todaySessions;
+}
+
+function updateDisplay() {
+  const todaySessions = updateTodayProgress();
+  document.getElementById('todaySessions').textContent = todaySessions;
+  document.getElementById('dailyGoal').textContent = appState.dailyGoal;
+  document.getElementById('streakDisplay').textContent = `🔥 ${appState.currentStreak} days`;
+  document.getElementById('longestStreak').textContent = appState.longestStreak;
+  
+  const goal = appState.dailyGoal;
+  let message = 'Keep going!';
+  if (todaySessions >= goal) {
+    message = 'Goal achieved! 🎉';
+  } else if (todaySessions >= goal / 2) {
+    message = 'Great progress!';
+  }
+  document.getElementById('progressMessage').textContent = message;
+  
+  document.getElementById('habitGoal').value = appState.dailyGoal;
+  document.getElementById('settingsDailyGoal').value = appState.dailyGoal;
+  document.getElementById('defaultPractice').value = appState.defaultPractice;
+  document.getElementById('userName').value = appState.currentUser;
+}
+
+// Render Functions
+function renderStreakWeek() {
+  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const today = new Date();
+  const container = document.getElementById('streakWeek');
+  container.innerHTML = '';
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dayIndex = date.getDay();
+    
+    const hasPractice = appState.sessions.some(s => 
+      new Date(s.startTime).toDateString() === date.toDateString()
+    );
+    
+    const dayEl = document.createElement('div');
+    dayEl.className = 'streak-day';
+    dayEl.innerHTML = `
+      <span class="day-label">${days[dayIndex]}</span>
+      <div class="day-dot ${hasPractice ? '' : 'empty'}">${hasPractice ? '✓' : ''}</div>
+    `;
+    container.appendChild(dayEl);
+  }
+}
+
+function renderWeekChart() {
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const container = document.getElementById('weekChart');
+  container.innerHTML = '';
+  
+  const today = new Date();
+  const maxMinutes = 30;
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    
+    const daySessions = appState.sessions.filter(s => 
+      new Date(s.startTime).toDateString() === date.toDateString()
+    );
+    
+    const totalMinutes = daySessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+    const height = Math.min((totalMinutes / maxMinutes) * 120, 120);
+    
+    const barEl = document.createElement('div');
+    barEl.className = 'week-bar';
+    barEl.innerHTML = `
+      <div class="bar ${totalMinutes > 0 ? 'active' : ''}" style="height: ${height || 10}px"></div>
+      <span class="bar-label">${dayNames[date.getDay()]}</span>
+      <span class="bar-value">${totalMinutes} min</span>
+    `;
+    container.appendChild(barEl);
+  }
+}
+
+function renderBreathPractices() {
+  const container = document.getElementById('breathPractices');
+  container.innerHTML = '';
+  
+  Object.entries(breathingPatterns).forEach(([key, pattern]) => {
+    const card = document.createElement('div');
+    card.className = `practice-card ${appState.defaultPractice === key ? 'selected' : ''}`;
+    
+    card.onclick = () => selectPractice(key);
+    card.ondblclick = () => startPracticeSession(key);
+    
+    let timingHTML = '';
+    if (key === '4-7-8') {
+      timingHTML = `
+        <div class="practice-timing">
+          <div class="timing-item"><div class="time">4s</div><div class="label">Inhale</div></div>
+          <div class="timing-item"><div class="time">7s</div><div class="label">Hold</div></div>
+          <div class="timing-item"><div class="time">8s</div><div class="label">Exhale</div></div>
+        </div>
+      `;
+    } else if (key === 'box') {
+      timingHTML = `
+        <div class="practice-timing">
+          <div class="timing-item"><div class="time">4s</div><div class="label">Inhale</div></div>
+          <div class="timing-item"><div class="time">4s</div><div class="label">Hold</div></div>
+          <div class="timing-item"><div class="time">4s</div><div class="label">Exhale</div></div>
+        </div>
+      `;
+    } else if (key === '4-6') {
+      timingHTML = `
+        <div class="practice-timing">
+          <div class="timing-item"><div class="time">4s</div><div class="label">Inhale</div></div>
+          <div class="timing-item"><div class="time">6s</div><div class="label">Exhale</div></div>
+        </div>
+      `;
+    } else {
+      timingHTML = `
+        <div class="practice-timing">
+          <div class="timing-item"><div class="time">5s</div><div class="label">Inhale</div></div>
+          <div class="timing-item"><div class="time">5s</div><div class="label">Exhale</div></div>
+        </div>
+      `;
+    }
+    
+    card.innerHTML = `
+      <h4>${pattern.name}</h4>
+      <p>${pattern.description}</p>
+      ${timingHTML}
+      <button class="begin-practice-btn">Begin practice →</button>
+    `;
+    
+    const btn = card.querySelector('.begin-practice-btn');
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      startPracticeSession(key);
+    };
+    
+    container.appendChild(card);
+  });
+}
+
+function selectPractice(key) {
+  appState.defaultPractice = key;
+  saveData();
+  renderBreathPractices();
+}
+
+function startPracticeSession(key) {
+  appState.defaultPractice = key;
+  saveData();
+  startBreathingSession();
+}
+
+function renderSessionHistory() {
+  const container = document.getElementById('sessionHistory');
+  
+  if (appState.sessions.length === 0) {
+    container.innerHTML = '<p style="color: #868e96; text-align: center; padding: 40px;">No sessions yet. Start your first breathing practice!</p>';
+    return;
+  }
+  
+  const sorted = [...appState.sessions].sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+  
+  let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+  sorted.forEach(session => {
+    const date = new Date(session.startTime);
+    const pattern = breathingPatterns[session.pattern] || breathingPatterns['4-7-8'];
+    
+    html += `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-radius: 12px;">
+        <div>
+          <h5 style="font-size: 16px; margin-bottom: 4px;">${pattern.name}</h5>
+          <p style="color: #868e96; font-size: 13px;">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-weight: 600; color: #2A9D8F;">${session.duration} min</div>
+          <div style="font-size: 12px; color: #868e96;">${session.cycles} cycles</div>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  container.innerHTML = html;
+}
+
+function renderMoodHistory() {
+  const container = document.getElementById('moodHistory');
+  
+  if (appState.moodCheckins.length === 0) {
+    container.innerHTML = '<p style="color: #868e96; text-align: center; padding: 40px;">No mood check-ins yet. Start tracking your mood!</p>';
+    return;
+  }
+  
+  const moodEmojis = ['', '😢', '😕', '😐', '😊', '😄'];
+  const sorted = [...appState.moodCheckins].sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+  sorted.slice(0, 10).forEach(checkin => {
+    const date = new Date(checkin.date);
+    
+    html += `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-radius: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 32px;">${moodEmojis[checkin.mood]}</div>
+          <div>
+            <p style="font-size: 13px; color: #868e96;">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+            ${checkin.note ? `<p style="font-size: 14px; margin-top: 4px;">${checkin.note}</p>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  container.innerHTML = html;
+}
+
+function renderHabitsChart() {
+  renderWeekChart();
+  const container = document.getElementById('habitsWeekChart');
+  container.innerHTML = document.getElementById('weekChart').innerHTML;
+}
+
+function updateInsights() {
+  const weeklySessions = updateTodayProgress();
+  const totalMinutes = appState.sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+  
+  document.getElementById('weeklySessions').textContent = weeklySessions;
+  document.getElementById('totalPracticeTime').textContent = `${totalMinutes} min`;
+  
+  const insightsContainer = document.getElementById('practiceMoodInsight');
+  
+  if (appState.sessions.length < 3) {
+    insightsContainer.innerHTML = '<p style="color: #868e96;">Complete more sessions to see insights.</p>';
+    return;
+  }
+  
+  const hourCounts = {};
+  appState.sessions.forEach(s => {
+    const hour = new Date(s.startTime).getHours();
+    hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+  });
+  
+  const bestHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0];
+  const bestTime = bestHour ? `${bestHour[0]}:00` : 'varied times';
+  
+  let improvedCount = 0;
+  let totalComparisons = 0;
+  
+  for (let i = 0; i < appState.moodCheckins.length - 1; i++) {
+    const current = appState.moodCheckins[i];
+    const next = appState.moodCheckins[i + 1];
+    
+    if (current.mood < next.mood) {
+      improvedCount++;
+    }
+    totalComparisons++;
+  }
+  
+  const improvementRate = totalComparisons > 0 ? Math.round((improvedCount / totalComparisons) * 100) : 0;
+  
+  insightsContainer.innerHTML = `
+    <p>You breathe most often around <strong>${bestTime}</strong>.</p>
+    <p style="margin-top: 8px;">Your average mood improves after <strong>${improvementRate}%</strong> of your sessions this week.</p>
+  `;
+  
+  document.getElementById('insightsText').innerHTML = `
+    <p>You breathe most often around <strong>${bestTime}</strong>.</p>
+    <p style="margin-top: 8px;">Your average mood improves after <strong>${improvementRate}%</strong> of your sessions this week.</p>
+  `;
+}
+
+// Settings Functions
+function updateUserName() {
+  appState.currentUser = document.getElementById('userName').value;
+  saveData();
+  updateGreeting();
+}
+
+function updateDailyGoal() {
+  appState.dailyGoal = parseInt(document.getElementById('settingsDailyGoal').value);
+  saveData();
+  updateDisplay();
+}
+
+function updateGoal() {
+  appState.dailyGoal = parseInt(document.getElementById('habitGoal').value);
+  saveData();
+  updateDisplay();
+}
+
+function updateDefaultPractice() {
+  appState.defaultPractice = document.getElementById('defaultPractice').value;
+  saveData();
+  renderBreathPractices();
+}
+
+// Utility Functions
+function updateGreeting() {
+  const hour = new Date().getHours();
+  let greeting = 'Good morning';
+  if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+  else if (hour >= 17) greeting = 'Good evening';
+  
+  const name = appState.currentUser ? `, ${appState.currentUser}` : '';
+  document.getElementById('greeting').textContent = greeting + name + ' 👋';
+}
+
+function updateDateDisplay() {
+  const options = { weekday: 'long', month: 'short', day: 'numeric' };
+  document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-US', options);
+}
+
+// Set random daily tip
+document.getElementById('dailyTip').textContent = dailyTips[Math.floor(Math.random() * dailyTips.length)];
+</script>
+
+</body>
+</html>
