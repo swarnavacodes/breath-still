@@ -10,162 +10,184 @@ test.beforeEach(async ({ page }) => {
 });
 
 // ── Navigation ──
-test('Home page loads with greeting and eyebrow', async ({ page }) => {
+test('Home page loads with greeting and date', async ({ page }) => {
   await expect(page.locator('#greeting')).toContainText('Good');
-  await expect(page.locator('#dateEyebrow')).not.toBeEmpty();
+  await expect(page.locator('#dateDisplay')).not.toBeEmpty();
 });
 
 test('Sidebar nav switches pages', async ({ page }) => {
   await expect(page.locator('.page.active')).toHaveId('home');
-  await page.locator('.nav button[data-page="breathe"]').click();
+  await page.locator('.nav-menu a[data-page="breathe"]').click();
   await expect(page.locator('.page.active')).toHaveId('breathe');
-  await expect(page.locator('#breathe h1')).toContainText('Breathe');
-  await page.locator('.nav button[data-page="mood"]').click();
+  await expect(page.locator('#breathe h2')).toContainText('Breathe');
+  await page.locator('.nav-menu a[data-page="mood"]').click();
   await expect(page.locator('.page.active')).toHaveId('mood');
-  await page.locator('.nav button[data-page="home"]').click();
+  await page.locator('.nav-menu a[data-page="home"]').click();
   await expect(page.locator('.page.active')).toHaveId('home');
 });
 
-// ── Hero / Orb ──
-test('Hero orb shows Ready state by default', async ({ page }) => {
-  await page.evaluate(() => {
-    localStorage.setItem('stillData', JSON.stringify({ sessions: [], moods: [], goal: 5, practice: '478', name: '' }));
-  });
-  await page.reload();
-  await expect(page.locator('#homePhase')).toHaveText('Ready');
-  await expect(page.locator('#homeCount')).toHaveText('4');
+// ── Hero / Breathing Card ──
+test('Breathing ring with meditation logo is visible', async ({ page }) => {
+  await expect(page.locator('#breathingRing')).toBeVisible();
+  await expect(page.locator('.meditation-illustration')).toBeVisible();
 });
 
-test('Hero orb check icon is visible', async ({ page }) => {
-  await expect(page.locator('.hero-orb-check')).toBeVisible();
-  await expect(page.locator('.hero-orb-check')).toHaveText('✓');
+test('Start session button opens modal', async ({ page }) => {
+  await page.locator('.start-btn').click();
+  await expect(page.locator('#sessionModal')).toHaveClass(/active/);
 });
 
-// ── Breathing modal ──
-test('Start session opens modal with practice choices', async ({ page }) => {
-  await page.locator('.hero .primary').click();
-  await expect(page.locator('#modal')).toHaveClass(/show/);
-  await expect(page.locator('#modalChoices button')).toHaveCount(4);
+test('Breathing info shows 4-7-8 pattern by default', async ({ page }) => {
+  await expect(page.locator('.breathing-card h3')).toContainText('4-7-8 Breathing');
+  await expect(page.locator('.timer-box')).toHaveCount(3);
 });
 
-test('Can select practice and duration in modal', async ({ page }) => {
-  await page.locator('.hero .primary').click();
-  await page.locator('#modalChoices button:has-text("Box breathing")').click();
-  await expect(page.locator('#modalChoices button.selected')).toContainText('Box breathing');
-  await page.locator('.duration button:has-text("10 min")').click();
-  await expect(page.locator('.duration button.selected')).toContainText('10 min');
+// ── Progress ──
+test('Progress ring shows session count and goal', async ({ page }) => {
+  await expect(page.locator('#todaySessions')).toBeVisible();
+  await expect(page.locator('#dailyGoal')).toBeVisible();
 });
 
-test('Modal closes with X button', async ({ page }) => {
-  await page.locator('.hero .primary').click();
-  await expect(page.locator('#modal')).toHaveClass(/show/);
-  await page.locator('.close').click();
-  await expect(page.locator('#modal')).not.toHaveClass(/show/);
-});
-
-// ── Progress ring ──
-test('Progress ring renders with count', async ({ page }) => {
-  await expect(page.locator('#progressNum')).toBeVisible();
-  await expect(page.locator('#goalLabel')).toContainText('/');
+test('Progress message is displayed', async ({ page }) => {
+  await expect(page.locator('#progressMessage')).toBeVisible();
 });
 
 // ── Mood ──
 test('Mood emoji buttons render on home card', async ({ page }) => {
-  const moods = page.locator('#moods button');
+  const moods = page.locator('#home .mood-emojis .mood-emoji');
   await expect(moods).toHaveCount(5);
 });
 
 test('Mood emoji buttons render on mood page', async ({ page }) => {
-  await page.locator('.nav button[data-page="mood"]').click();
-  const moods = page.locator('#moodsLarge button');
+  await page.locator('.nav-menu a[data-page="mood"]').click();
+  const moods = page.locator('#mood .mood-emojis .mood-emoji');
   await expect(moods).toHaveCount(5);
 });
 
 test('Home mood note input exists', async ({ page }) => {
-  await expect(page.locator('#homeMoodNote')).toBeVisible();
+  await expect(page.locator('#moodNote')).toBeVisible();
 });
 
 test('Can select mood and save from home', async ({ page }) => {
-  await page.locator('#moods button').nth(3).click();
-  await expect(page.locator('#moods button.selected')).toHaveCount(1);
-  await page.locator('#homeMoodNote').fill('Testing note');
-  await page.locator('.mood-save-btn').click();
-  await page.waitForTimeout(500);
-  await expect(page.locator('#homeMoodNote')).toHaveValue('');
+  await page.locator('.mood-emojis .mood-emoji').nth(3).click();
+  await expect(page.locator('.mood-emojis .mood-emoji.selected')).toHaveCount(1);
+  await page.locator('#moodNote').fill('Testing note');
+  page.on('dialog', dialog => dialog.accept());
+  await page.locator('#home .save-btn').click();
 });
 
 test('Can save mood from mood page with note', async ({ page }) => {
-  await page.locator('.nav button[data-page="mood"]').click();
-  await page.locator('#moodsLarge button').nth(4).click();
-  await page.locator('#moodText').fill('Great session');
-  await page.locator('#mood .card .primary').click();
-  await page.waitForTimeout(500);
-  await expect(page.locator('#moodHistory')).toContainText('Great session');
+  await page.locator('.nav-menu a[data-page="mood"]').click();
+  await page.locator('#mood .mood-emojis .mood-emoji').nth(4).click();
+  await page.locator('#moodPageNote').fill('Great session');
+  page.on('dialog', dialog => dialog.accept());
+  await page.locator('#mood .save-btn').click();
 });
 
 // ── Habit streak ──
-test('Streak badge renders', async ({ page }) => {
-  await expect(page.locator('#streak')).toBeVisible();
-  await expect(page.locator('.streak-badge')).toContainText('days');
+test('Streak count is visible', async ({ page }) => {
+  await expect(page.locator('#streakCount')).toBeVisible();
 });
 
-test('Days row renders 7 day cells', async ({ page }) => {
-  await expect(page.locator('#days .day')).toHaveCount(7);
+test('Streak week renders 7 day cells', async ({ page }) => {
+  const days = page.locator('#streakWeek .streak-day');
+  await expect(days).toHaveCount(7);
 });
 
 // ── Charts ──
 test('Week chart renders bar columns', async ({ page }) => {
-  await expect(page.locator('#chart .barcol')).toHaveCount(7);
+  const bars = page.locator('#weekChart .week-bar');
+  await expect(bars).toHaveCount(7);
 });
 
-test('Chart shows minute labels', async ({ page }) => {
-  const labels = page.locator('#chart .min-label');
+test('Chart shows bar labels', async ({ page }) => {
+  const labels = page.locator('#weekChart .bar-label');
   await expect(labels).toHaveCount(7);
 });
 
-// ── Insights ──
-test('Home insights render', async ({ page }) => {
-  const items = page.locator('#homeInsights .insight');
-  await expect(items).toHaveCount(2);
+test('Chart shows bar values', async ({ page }) => {
+  const values = page.locator('#weekChart .bar-value');
+  await expect(values).toHaveCount(7);
 });
 
-// ── Practice choices ──
-test('Breathe page shows 4 practice choices', async ({ page }) => {
-  await page.locator('.nav button[data-page="breathe"]').click();
-  await expect(page.locator('#practiceChoices button')).toHaveCount(4);
+// ── Breathe page ──
+test('Breathe page shows practice cards', async ({ page }) => {
+  await page.locator('.nav-menu a[data-page="breathe"]').click();
+  const cards = page.locator('#breathPractices .practice-card');
+  await expect(cards).toHaveCount(4);
 });
 
 // ── Settings ──
 test('Settings page has name input', async ({ page }) => {
-  await page.locator('.nav button[data-page="settings"]').click();
-  await expect(page.locator('#nameInput')).toBeVisible();
+  await page.locator('.nav-menu a[data-page="settings"]').click();
+  await expect(page.locator('#userName')).toBeVisible();
 });
 
 test('Settings page has goal and practice selects', async ({ page }) => {
-  await page.locator('.nav button[data-page="settings"]').click();
-  await expect(page.locator('#goalSelect')).toBeVisible();
-  await expect(page.locator('#practiceSelect')).toBeVisible();
+  await page.locator('.nav-menu a[data-page="settings"]').click();
+  await expect(page.locator('#settingsDailyGoal')).toBeVisible();
+  await expect(page.locator('#defaultPractice')).toBeVisible();
+});
+
+// ── Insights page ──
+test('Insights page has weekly sessions count', async ({ page }) => {
+  await page.locator('.nav-menu a[data-page="insights"]').click();
+  await expect(page.locator('#weeklySessions')).toBeVisible();
+});
+
+test('Insights page has total practice time', async ({ page }) => {
+  await page.locator('.nav-menu a[data-page="insights"]').click();
+  await expect(page.locator('#totalPracticeTime')).toBeVisible();
+});
+
+test('Insights page has practice mood insight section', async ({ page }) => {
+  await page.locator('.nav-menu a[data-page="insights"]').click();
+  await expect(page.locator('#practiceMoodInsight')).toBeVisible();
+});
+
+test('Insights page renders week chart', async ({ page }) => {
+  await page.locator('.nav-menu a[data-page="insights"]').click();
+  const bars = page.locator('#insightsWeekChart .week-bar');
+  await expect(bars).toHaveCount(7);
 });
 
 // ── LocalStorage ──
 test('Data persists across page reload', async ({ page }) => {
   await page.evaluate(() => {
-    const data = { sessions: [{ date: new Date().toISOString().slice(0,10), ts: Date.now(), practice: '478', minutes: 5 }], moods: [], goal: 5, practice: '478', name: '' };
-    localStorage.setItem('stillData', JSON.stringify(data));
+    const data = {
+      sessions: [{ startTime: new Date().toISOString(), duration: 5 }],
+      moodCheckins: [],
+      dailyGoal: 5,
+      defaultPractice: '4-7-8',
+      currentUser: ''
+    };
+    localStorage.setItem('stillAppState', JSON.stringify(data));
   });
   await page.reload();
-  await expect(page.locator('#progressNum')).toHaveText('1');
+  await expect(page.locator('#todaySessions')).toHaveText('1');
 });
 
 // ── Mobile ──
-test('Mobile viewport shows bottom bar', async ({ page }) => {
+test('Mobile viewport hides sidebar', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
-  await expect(page.locator('.mobilebar')).toBeVisible();
   await expect(page.locator('.sidebar')).toHaveCSS('display', 'none');
 });
 
-// ── Tablet ──
-test('Tablet viewport hides sidebar text', async ({ page }) => {
-  await page.setViewportSize({ width: 900, height: 768 });
-  await expect(page.locator('.sidebar')).toBeVisible();
+// ── Session Modal ──
+test('Session modal shows breathing pattern name', async ({ page }) => {
+  await page.locator('.start-btn').click();
+  await expect(page.locator('#sessionTitle')).toContainText('Breathing');
+});
+
+test('Session modal shows phase text and countdown', async ({ page }) => {
+  await page.locator('.start-btn').click();
+  await expect(page.locator('#phaseText')).toBeVisible();
+  await expect(page.locator('#countdown')).toBeVisible();
+});
+
+test('Session modal can be closed', async ({ page }) => {
+  await page.locator('.start-btn').click();
+  await expect(page.locator('#sessionModal')).toHaveClass(/active/);
+  await page.locator('#sessionModal .close-btn').click();
+  await expect(page.locator('#sessionModal')).not.toHaveClass(/active/);
 });

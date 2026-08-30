@@ -116,6 +116,13 @@ select:focus-visible,
   border: 1.5px solid rgba(42, 157, 143, .25);
 }
 
+.logo-icon svg {
+  width: 27px;
+  height: 27px;
+  color: #ffd98a;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .25));
+}
+
 .logo-text h1 {
   font-size: 21px;
   font-weight: 800;
@@ -180,27 +187,32 @@ select:focus-visible,
 
 .nav-menu a .icon svg { width: 19px; height: 19px; stroke: currentColor; }
 
-.tip-card {
+.hero-tip {
+  width: 250px;
+  flex-shrink: 0;
   background: linear-gradient(150deg, #f2fbf9 0%, #e6f4f1 100%);
+  border: 1px solid #d4ece5;
   border-radius: var(--radius-lg);
-  padding: 18px;
-  margin-top: auto;
-  border: 1px solid #dcefe9;
+  padding: 22px 20px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  z-index: 1;
+  text-align: left;
 }
 
-.tip-card h4 {
-  font-size: 12.5px;
+.hero-tip h4 {
+  font-size: 12px;
   color: var(--primary-darker);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 6px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .3px;
+  letter-spacing: .4px;
 }
 
-.tip-card p { font-size: 13px; color: #4d5761; line-height: 1.55; }
+.hero-tip p { font-size: 13.5px; color: #4d5761; line-height: 1.6; }
 
 /* Main Content */
 .main {
@@ -286,7 +298,7 @@ select:focus-visible,
   pointer-events: none;
 }
 
-.breathing-info { flex: 1; max-width: 480px; position: relative; z-index: 1; }
+.breathing-info { flex: 1; max-width: 520px; position: relative; z-index: 1; }
 
 .breathing-info h3 { font-size: 27px; font-weight: 800; color: var(--ink); margin-bottom: 10px; letter-spacing: -0.5px; }
 .breathing-info p { color: #4d5761; font-size: 14.5px; margin-bottom: 24px; line-height: 1.6; }
@@ -637,6 +649,49 @@ select:focus-visible,
 
 .session-modal .close-btn:hover { color: var(--ink); background: var(--border-soft); }
 
+/* Session Complete modal */
+.complete-modal { padding: 46px 42px 40px; }
+.complete-orb {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%,
+    rgba(255, 255, 255, .98) 0%,
+    var(--primary-light) 45%,
+    rgba(42, 157, 143, .55) 78%,
+    rgba(42, 157, 143, .9) 100%);
+  box-shadow: 0 0 0 1px rgba(42, 157, 143, .16),
+    0 14px 34px -6px rgba(42, 157, 143, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-darker);
+}
+
+.complete-orb svg { width: 46px; height: 46px; position: relative; z-index: 1; }
+
+.complete-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(42, 157, 143, .4);
+  opacity: 0;
+  animation: completeRipple 2.4s var(--ease) infinite;
+}
+
+@keyframes completeRipple {
+  0%   { transform: scale(1);   opacity: .7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.complete-msg { margin-bottom: 28px; max-width: 300px; margin-left: auto; margin-right: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .complete-ripple { animation: none; opacity: 0; }
+}
+
 /* Breathing Circle with Progress Ring */
 .breathing-container { position: relative; width: 280px; height: 280px; margin: 0 auto 26px; }
 .progress-ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -656,28 +711,70 @@ select:focus-visible,
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 244px;
-  height: 244px;
+  width: 224px;
+  height: 224px;
   border-radius: 50%;
-  background: #eefbf8;
-  border: 8px solid var(--primary);
+  background: radial-gradient(circle at 50% 42%,
+    rgba(255, 255, 255, .95) 0%,
+    var(--primary-light) 34%,
+    rgba(42, 157, 143, .45) 74%,
+    rgba(42, 157, 143, .8) 100%);
+  box-shadow:
+    0 0 0 1px rgba(42, 157, 143, .18),
+    0 0 32px 6px rgba(42, 157, 143, .22),
+    0 0 80px 18px rgba(42, 157, 143, .12),
+    inset 0 0 24px rgba(255, 255, 255, .55);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: all .3s var(--ease);
+  will-change: transform, opacity;
 }
 
-.breath-circle.breathing { animation: breathExpand 19s infinite; }
-
-@keyframes breathExpand {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  21% { transform: translate(-50%, -50%) scale(1.08); }
-  58% { transform: translate(-50%, -50%) scale(1.08); }
+/* Soft halo behind the orb, breathes with it */
+.breath-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 224px;
+  height: 224px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  background: radial-gradient(circle, rgba(42, 157, 143, .28) 0%, rgba(42, 157, 143, 0) 68%);
+  pointer-events: none;
+  will-change: transform, opacity;
 }
 
-.breath-circle .phase-text { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 10px; letter-spacing: -.3px; }
-.breath-circle .countdown { font-size: 64px; font-weight: 800; color: var(--primary); line-height: 1; }
+/* Ripples emitted at the top of each inhale */
+.breath-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 224px;
+  height: 224px;
+  border-radius: 50%;
+  border: 2px solid rgba(42, 157, 143, .4);
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.breath-ripple.play {
+  animation: breathRipple 3.2s var(--ease) forwards;
+}
+
+@keyframes breathRipple {
+  0%   { opacity: .8; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0;  transform: translate(-50%, -50%) scale(1.55); }
+}
+
+.breath-circle .phase-text { font-size: 26px; font-weight: 800; color: var(--primary-darker); margin-bottom: 10px; letter-spacing: -.3px; }
+.breath-circle .countdown { font-size: 64px; font-weight: 800; color: var(--primary-darker); line-height: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .breath-ripple.play { animation: none; }
+}
 
 .session-time-display { color: var(--muted); font-size: 14px; margin-bottom: 22px; font-weight: 600; }
 .session-controls { display: flex; gap: 12px; justify-content: center; }
@@ -780,6 +877,7 @@ select:focus-visible,
   .main { margin-left: 0; padding: 20px; }
   .breathing-card { flex-direction: column; text-align: center; gap: 24px; }
   .breathing-timers { justify-content: center; }
+  .hero-tip { width: 100%; max-width: 380px; margin: 0 auto; }
   .cards-grid { grid-template-columns: 1fr; }
   .breathing-container { width: 260px; height: 260px; }
   .breath-circle { width: 220px; height: 220px; }
@@ -798,7 +896,7 @@ select:focus-visible,
 <!-- Sidebar -->
 <aside class="sidebar">
   <div class="logo">
-    <div class="logo-icon">🧘</div>
+    <div class="logo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.4C10.6 15.4 10.6 10.4 12 5.9C13.4 10.4 13.4 15.4 12 19.4Z"/><path d="M10 19.5C6.9 15.7 6 11.4 6.5 6.7C10.1 7.9 11.4 13 10.6 19.5Z"/><path d="M14 19.5C17.1 15.7 18 11.4 17.5 6.7C13.9 7.9 12.6 13 13.4 19.5Z"/><path d="M7.4 19.1C3.9 16.5 2.7 12.9 3.2 8.9C6.3 9.7 8.3 14.3 8 19.1Z"/><path d="M16.6 19.1C20.1 16.5 21.3 12.9 20.8 8.9C17.7 9.7 15.7 14.3 16 19.1Z"/><path d="M8.9 20.6C9.9 21.7 11 22.3 12 22.3C13 22.3 14.1 21.7 15.1 20.6"/></svg></div>
     <div class="logo-text">
       <h1>Still</h1>
       <p>Breathe. Feel. Grow.</p>
@@ -814,11 +912,6 @@ select:focus-visible,
     <li><a href="#" data-page="history"><span class="icon"><!-- Lucide: clock --><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span> History</a></li>
     <li><a href="#" data-page="settings"><span class="icon"><!-- Lucide: settings --><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></span> Settings</a></li>
   </ul>
-
-  <div class="tip-card">
-    <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Tip of the day</h4>
-    <p id="dailyTip">A few intentional breaths can create a small pause between a trigger and your response.</p>
-  </div>
 </aside>
 
 <!-- Main Content -->
@@ -855,6 +948,12 @@ select:focus-visible,
         </div>
         <button class="start-btn" onclick="startBreathingSession()">Start session ▶</button>
       </div>
+
+      <div class="hero-tip">
+        <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Tip of the day</h4>
+        <p id="dailyTip">A few intentional breaths can create a small pause between a trigger and your response.</p>
+      </div>
+
       <div class="breathing-ring" id="breathingRing">
         <img class="meditation-illustration" src="meditation-logo.png" alt="Meditation" width="160" height="160"/>
       </div>
@@ -1200,7 +1299,8 @@ select:focus-visible,
           stroke-dashoffset="0"></circle>
       </svg>
       
-      <!-- Breathing Circle -->
+      <!-- Breathing Halo + Circle -->
+      <div class="breath-halo" id="breathHalo"></div>
       <div class="breath-circle" id="breathCircle">
         <div class="phase-text" id="phaseText">Ready</div>
         <div class="countdown" id="countdown">4</div>
@@ -1213,8 +1313,22 @@ select:focus-visible,
 
     <div class="session-controls">
       <button class="control-btn secondary" onclick="pauseSession()">Pause</button>
-      <button class="control-btn primary" onclick="finishSession()">Finish early</button>
+      <button class="control-btn primary" onclick="finishSession(true)">Finish early</button>
     </div>
+  </div>
+</div>
+
+<!-- Session Complete Modal -->
+<div class="modal-overlay" id="completeModal">
+  <div class="session-modal complete-modal" role="dialog" aria-modal="true" aria-labelledby="completeTitle">
+    <button class="close-btn" onclick="closeCompleteModal()">×</button>
+    <div class="complete-orb" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      <div class="complete-ripple"></div>
+    </div>
+    <h3 id="completeTitle">Beautifully done</h3>
+    <p class="subtitle complete-msg" id="completeMsg">You made a quiet space for yourself today.</p>
+    <button class="control-btn primary" type="button" onclick="closeCompleteModal()">Back to calm</button>
   </div>
 </div>
 
@@ -1444,6 +1558,33 @@ function updateProgressRing() {
   circle.style.strokeDashoffset = offset;
 }
 
+// Smoothly scale the breathing orb (JS-driven so it matches the actual phase timing)
+function scaleBreathOrb(scale, seconds) {
+  const circle = document.getElementById('breathCircle');
+  const halo = document.getElementById('breathHalo');
+  if (!circle) return;
+  const timing = `${seconds}s cubic-bezier(.4, 0, .2, 1)`;
+  circle.style.transition = `transform ${timing}`;
+  circle.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  if (halo) {
+    halo.style.transition = `transform ${timing}, opacity ${timing}`;
+    halo.style.transform = `translate(-50%, -50%) scale(${1 + (scale - 1) * 1.6})`;
+    halo.style.opacity = scale > 1 ? '0.9' : '0.45';
+  }
+}
+
+// Emit a soft ripple from the orb (used at the top of each inhale)
+function spawnBreathRipple() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.querySelector('.breathing-container');
+  if (!container) return;
+  const ripple = document.createElement('div');
+  ripple.className = 'breath-ripple play';
+  container.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove());
+  setTimeout(() => ripple.remove(), 4000); // safety net
+}
+
 function startBreathingCycle(pattern) {
   if (!document.getElementById('sessionModal').classList.contains('active')) return;
 
@@ -1452,7 +1593,8 @@ function startBreathingCycle(pattern) {
   const countdown = document.getElementById('countdown');
 
   // Inhale
-  circle.classList.add('breathing');
+  scaleBreathOrb(1.14, pattern.inhale);
+  spawnBreathRipple();
   phaseText.textContent = 'Inhale';
   countdown.textContent = pattern.inhale;
   
@@ -1484,6 +1626,7 @@ function startBreathingCycle(pattern) {
   }, 1000);
 
   function startExhale() {
+    scaleBreathOrb(1.0, pattern.exhale);
     phaseText.textContent = 'Exhale';
     countdown.textContent = pattern.exhale;
     timeLeft = pattern.exhale;
@@ -1493,7 +1636,6 @@ function startBreathingCycle(pattern) {
       countdown.textContent = timeLeft;
       if (timeLeft <= 0) {
         clearInterval(exhaleInterval);
-        circle.classList.remove('breathing');
         appState.currentSession.cycles++;
         
         // Continue or finish
@@ -1512,7 +1654,7 @@ function pauseSession() {
   }
 }
 
-function finishSession() {
+function finishSession(isEarly) {
   if (sessionInterval) {
     clearInterval(sessionInterval);
     sessionInterval = null;
@@ -1538,7 +1680,22 @@ function finishSession() {
   updateDisplay();
   renderWeekChart();
   renderStreakWeek();
-  alert('Session completed! Great job. 🎉');
+  showCompleteModal(isEarly);
+}
+
+// Themed popup shown when a session ends (early or naturally)
+function showCompleteModal(isEarly) {
+  document.getElementById('completeTitle').textContent = isEarly
+    ? 'That was enough'
+    : 'Beautifully done';
+  document.getElementById('completeMsg').textContent = isEarly
+    ? 'Even a short pause counts. The calm you created stays with you — come back whenever you need it.'
+    : 'Session complete. Your mind is a little quieter for it — breathe, feel, grow.';
+  document.getElementById('completeModal').classList.add('active');
+}
+
+function closeCompleteModal() {
+  document.getElementById('completeModal').classList.remove('active');
 }
 
 function closeSessionModal() {
@@ -1548,8 +1705,12 @@ function closeSessionModal() {
   }
   
   document.getElementById('sessionModal').classList.remove('active');
-  document.getElementById('breathCircle').classList.remove('breathing');
   appState.currentSession = null;
+  
+  // Reset breathing orb to rest scale
+  scaleBreathOrb(1, 0.3);
+  // Remove any lingering ripples
+  document.querySelectorAll('.breath-ripple').forEach(r => r.remove());
   
   // Reset progress ring
   const circle = document.getElementById('progressRingFill');
