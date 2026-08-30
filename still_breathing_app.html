@@ -1813,12 +1813,17 @@ function startBreathingCycle(pattern) {
 }
 
 async function pauseSession() {
+  // Stop the countdown clock
   if (sessionInterval) {
     clearInterval(sessionInterval);
     sessionInterval = null;
-    await showPopup('Session paused. Click OK to resume.', 'info');
-    startSessionCountdown();
   }
+
+  // Close the modal - this stops the breathing cycle because
+  // startBreathingCycle checks if modal is active
+  closeSessionModal();
+
+  await showPopup('Session paused. Take your time — begin again whenever you\'re ready.', 'info');
 }
 
 function finishSession(isEarly) {
