@@ -629,6 +629,24 @@ select:focus-visible,
   border-radius: var(--radius-lg);
   padding: 22px;
   border: 1px solid var(--border-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+.benefit-card .card-illustration {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.benefit-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .benefit-card h4 {
@@ -2213,6 +2231,59 @@ function renderBenefits() {
     '5-5': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
   };
 
+  // Modern, polished themed illustrations for each card
+  const illustrations = {
+    '4-7-8': `<svg class="card-illustration" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Stars -->
+      <circle cx="160" cy="40" r="2" fill="currentColor" opacity="0.6"/>
+      <circle cx="180" cy="60" r="1.5" fill="currentColor" opacity="0.5"/>
+      <circle cx="145" cy="55" r="1" fill="currentColor" opacity="0.4"/>
+      <circle cx="50" cy="45" r="1.5" fill="currentColor" opacity="0.5"/>
+      <circle cx="70" cy="30" r="2" fill="currentColor" opacity="0.6"/>
+      <!-- Moon -->
+      <circle cx="100" cy="100" r="50" stroke="currentColor" stroke-width="3" opacity="0.3"/>
+      <circle cx="115" cy="85" r="42" fill="var(--surface)"/>
+      <circle cx="100" cy="100" r="50" fill="currentColor" opacity="0.15"/>
+      <!-- Crescent glow -->
+      <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="1" opacity="0.1"/>
+      <circle cx="100" cy="100" r="65" stroke="currentColor" stroke-width="0.5" opacity="0.08"/>
+    </svg>`,
+    'box': `<svg class="card-illustration" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Concentric circles - focus/target theme -->
+      <circle cx="100" cy="100" r="70" stroke="currentColor" stroke-width="2" opacity="0.15"/>
+      <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="2" opacity="0.2"/>
+      <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+      <circle cx="100" cy="100" r="25" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+      <circle cx="100" cy="100" r="12" fill="currentColor" opacity="0.15"/>
+      <!-- Crosshairs -->
+      <line x1="100" y1="20" x2="100" y2="45" stroke="currentColor" stroke-width="1.5" opacity="0.15"/>
+      <line x1="100" y1="155" x2="100" y2="180" stroke="currentColor" stroke-width="1.5" opacity="0.15"/>
+      <line x1="20" y1="100" x2="45" y2="100" stroke="currentColor" stroke-width="1.5" opacity="0.15"/>
+      <line x1="155" y1="100" x2="180" y2="100" stroke="currentColor" stroke-width="1.5" opacity="0.15"/>
+    </svg>`,
+    '4-6': `<svg class="card-illustration" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Flowing waves - calm/flow theme -->
+      <path d="M20 120 Q50 90, 80 120 T140 120 T200 120" stroke="currentColor" stroke-width="3" opacity="0.12" fill="none"/>
+      <path d="M0 100 Q30 70, 60 100 T120 100 T180 100 T240 100" stroke="currentColor" stroke-width="2.5" opacity="0.15" fill="none"/>
+      <path d="M-10 80 Q20 50, 50 80 T110 80 T170 80 T230 80" stroke="currentColor" stroke-width="2" opacity="0.18" fill="none"/>
+      <path d="M0 140 Q30 110, 60 140 T120 140 T180 140 T240 140" stroke="currentColor" stroke-width="2" opacity="0.12" fill="none"/>
+      <path d="M20 160 Q50 130, 80 160 T140 160 T200 160" stroke="currentColor" stroke-width="2" opacity="0.1" fill="none"/>
+      <!-- Floating circles -->
+      <circle cx="150" cy="50" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.12"/>
+      <circle cx="45" cy="65" r="5" stroke="currentColor" stroke-width="1.5" opacity="0.1"/>
+    </svg>`,
+    '5-5': `<svg class="card-illustration" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Heart with subtle pulse lines - balance/harmony -->
+      <path d="M100 170 C60 130, 30 100, 30 70 C30 40, 55 25, 80 35 C95 42, 100 55, 100 65 C100 55, 105 42, 120 35 C145 25, 170 40, 170 70 C170 100, 140 130, 100 170Z" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="2" opacity="0.15"/>
+      <!-- Balance lines -->
+      <line x1="30" y1="100" x2="170" y2="100" stroke="currentColor" stroke-width="1" opacity="0.08"/>
+      <line x1="100" y1="30" x2="100" y2="170" stroke="currentColor" stroke-width="1" opacity="0.08"/>
+      <!-- Outer rings -->
+      <circle cx="100" cy="100" r="75" stroke="currentColor" stroke-width="1" opacity="0.08"/>
+      <circle cx="100" cy="100" r="85" stroke="currentColor" stroke-width="0.5" opacity="0.06"/>
+    </svg>`
+  };
+
   Object.entries(breathingPatterns).forEach(([key, pattern]) => {
     const card = document.createElement('div');
     card.className = 'benefit-card';
@@ -2220,6 +2291,7 @@ function renderBenefits() {
     const benefitsList = pattern.benefits.map(b => `<li>${b}</li>`).join('');
 
     card.innerHTML = `
+      ${illustrations[key]}
       <h4>${icons[key]} ${pattern.name}</h4>
       <ul class="benefit-list">
         ${benefitsList}
