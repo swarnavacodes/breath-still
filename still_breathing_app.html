@@ -1758,6 +1758,9 @@ function showConfirm(message) {
 let sessionTimer = null;
 let sessionTimeRemaining = 300; // 5 minutes in seconds
 let sessionInterval = null;
+let breathingIntervals = [];   // tracks all breathing-cycle intervals so pause can stop them
+let pauseTimeout = null;        // tracks the setTimeout that chains breathing cycles
+let isPaused = false;          // true between pause and resume
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
@@ -1986,66 +1989,95 @@ function startBreathingCycle(pattern) {
   spawnBreathRipple();
   phaseText.textContent = 'Inhale';
   countdown.textContent = pattern.inhale;
-  
+
   let timeLeft = pattern.inhale;
   const inhaleInterval = setInterval(() => {
     timeLeft--;
     countdown.textContent = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(inhaleInterval);
-      
+      breathingIntervals = breathingIntervals.filter(id => id !== inhaleInterval);
+
       if (pattern.hold > 0) {
         // Hold
         phaseText.textContent = 'Hold';
         countdown.textContent = pattern.hold;
         timeLeft = pattern.hold;
-        
+
         const holdInterval = setInterval(() => {
           timeLeft--;
           countdown.textContent = timeLeft;
           if (timeLeft <= 0) {
             clearInterval(holdInterval);
+            breathingIntervals = breathingIntervals.filter(id => id !== holdInterval);
             startExhale();
           }
         }, 1000);
+        breathingIntervals.push(holdInterval);
       } else {
         startExhale();
       }
     }
   }, 1000);
+  breathingIntervals.push(inhaleInterval);
 
   function startExhale() {
     scaleBreathOrb(1.0, pattern.exhale);
     phaseText.textContent = 'Exhale';
     countdown.textContent = pattern.exhale;
     timeLeft = pattern.exhale;
-    
+
     const exhaleInterval = setInterval(() => {
       timeLeft--;
       countdown.textContent = timeLeft;
       if (timeLeft <= 0) {
         clearInterval(exhaleInterval);
+        breathingIntervals = breathingIntervals.filter(id => id !== exhaleInterval);
         appState.currentSession.cycles++;
-        
+
         // Continue or finish
-        setTimeout(() => startBreathingCycle(pattern), 1000);
+        pauseTimeout = setTimeout(() => startBreathingCycle(pattern), 1000);
       }
     }, 1000);
+    breathingIntervals.push(exhaleInterval);
   }
 }
 
 async function pauseSession() {
+  if (!appState.currentSession) return;
+
+  isPaused = true;
+
   // Stop the countdown clock
   if (sessionInterval) {
     clearInterval(sessionInterval);
     sessionInterval = null;
   }
 
-  // Close the modal - this stops the breathing cycle because
-  // startBreathingCycle checks if modal is active
-  closeSessionModal();
+  // Stop all breathing cycle intervals
+  breathingIntervals.forEach(id => clearInterval(id));
+  breathingIntervals = [];
 
-  await showPopup('Session paused. Take your time — begin again whenever you\'re ready.', 'info');
+  // Stop the chained setTimeout between cycles
+  if (pauseTimeout) {
+    clearTimeout(pauseTimeout);
+    pauseTimeout = null;
+  }
+
+  // Reset orb to rest visually but keep modal open
+  scaleBreathOrb(1, 0.3);
+  document.getElementById('phaseText').textContent = 'Paused';
+  document.getElementById('countdown').textContent = '—';
+
+  await showPopup('Session paused. Click OK to resume.', 'info');
+
+  // Resume
+  isPaused = false;
+  startSessionCountdown();
+  const pattern = breathingPatterns[appState.currentSession.pattern];
+  if (pattern) {
+    startBreathingCycle(pattern);
+  }
 }
 
 function finishSession(isEarly) {
@@ -2097,15 +2129,24 @@ function closeSessionModal() {
     clearInterval(sessionInterval);
     sessionInterval = null;
   }
-  
+
+  // Stop all breathing cycle intervals and pending timeouts
+  breathingIntervals.forEach(id => clearInterval(id));
+  breathingIntervals = [];
+  if (pauseTimeout) {
+    clearTimeout(pauseTimeout);
+    pauseTimeout = null;
+  }
+  isPaused = false;
+
   document.getElementById('sessionModal').classList.remove('active');
   appState.currentSession = null;
-  
+
   // Reset breathing orb to rest scale
   scaleBreathOrb(1, 0.3);
   // Remove any lingering ripples
   document.querySelectorAll('.breath-ripple').forEach(r => r.remove());
-  
+
   // Reset progress ring
   const circle = document.getElementById('progressRingFill');
   circle.style.strokeDashoffset = 0;
