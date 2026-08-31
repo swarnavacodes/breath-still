@@ -513,6 +513,7 @@ select:focus-visible,
 
 /* Confidence selector */
 .confidence-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
+.confidence-section + .save-btn { margin-top: 18px; }
 .confidence-label { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
 .confidence-row { display: flex; gap: 6px; }
 .confidence-btn {
@@ -3060,10 +3061,13 @@ function renderMoodHistory() {
               data: confData,
               type: 'line',
               borderColor: '#6c5ce7',
-              backgroundColor: 'rgba(108,92,231,0.1)',
-              borderWidth: 2,
-              pointRadius: 3,
+              backgroundColor: 'rgba(108,92,231,0.15)',
+              borderWidth: 2.5,
+              pointRadius: 5,
+              pointHoverRadius: 7,
               pointBackgroundColor: '#6c5ce7',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
               tension: 0.3,
               spanGaps: true,
               order: 1,
