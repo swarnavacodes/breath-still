@@ -352,8 +352,13 @@ select:focus-visible,
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 8px 0 14px;
+  gap: 8px;
+  padding: 4px 0 14px;
+}
+.cycle-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
 }
 
 .breathing-ring {
@@ -681,13 +686,13 @@ select:focus-visible,
   font-weight: 600;
 }
 .cycle-btn {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1.5px solid var(--border-soft);
   background: var(--surface);
   color: var(--ink);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -698,10 +703,10 @@ select:focus-visible,
 }
 .cycle-btn:hover { border-color: var(--primary); color: var(--primary); }
 .cycle-count {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--ink);
-  min-width: 20px;
+  min-width: 18px;
   text-align: center;
 }
 .cycle-est {
@@ -1347,7 +1352,7 @@ select:focus-visible,
         <div class="home-cycle-row">
           <button class="cycle-btn" onclick="adjustHomeCycles(-1)">−</button>
           <span class="cycle-count" id="homeCycleCount">5</span>
-          <span style="font-size:12px;color:var(--muted);font-weight:600;">cycles</span>
+          <span class="cycle-label">cycles</span>
           <button class="cycle-btn" onclick="adjustHomeCycles(1)">+</button>
         </div>
         <button class="start-btn" onclick="startBreathingSession()">Start session ▶</button>
