@@ -2969,44 +2969,110 @@ function updateInsights() {
   renderWeekChart('insightsWeekChart');
   renderSessionHistoryTable();
   
-  if (appState.sessions.length < 3) {
+  if (appState.sessions.length === 0) {
     insightsContainer.innerHTML = '<p style="color: #868e96;">Complete more sessions to see insights.</p>';
+    document.getElementById('insightsText').innerHTML = '<p>Start your breathing practice to see personalized insights.</p>';
     return;
   }
-  
-  const hourCounts = {};
-  appState.sessions.forEach(s => {
-    const hour = new Date(s.startTime).getHours();
-    hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+
+  // This week's sessions
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+  const weekSessions = appState.sessions.filter(s => new Date(s.startTime) >= weekStart);
+
+  // All-time sessions for broader insights
+  const allSessions = appState.sessions;
+
+  // 1. Most active time of day (from all sessions)
+  const timeBuckets = { 'morning': 0, 'afternoon': 0, 'evening': 0, 'night': 0 };
+  allSessions.forEach(s => {
+    const h = new Date(s.startTime).getHours();
+    if (h >= 5 && h < 12) timeBuckets.morning++;
+    else if (h >= 12 && h < 17) timeBuckets.afternoon++;
+    else if (h >= 17 && h < 21) timeBuckets.evening++;
+    else timeBuckets.night++;
   });
-  
-  const bestHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0];
-  const bestTime = bestHour ? `${bestHour[0]}:00` : 'varied times';
-  
-  let improvedCount = 0;
-  let totalComparisons = 0;
-  
-  for (let i = 0; i < appState.moodCheckins.length - 1; i++) {
-    const current = appState.moodCheckins[i];
-    const next = appState.moodCheckins[i + 1];
-    
-    if (current.mood < next.mood) {
-      improvedCount++;
+  const bestTime = Object.entries(timeBuckets).sort((a, b) => b[1] - a[1])[0];
+  const timeLabels = { morning: 'mornings', afternoon: 'afternoons', evening: 'evenings', night: 'late nights' };
+  const timePhrase = bestTime[1] > 0 ? timeLabels[bestTime[0]] : 'varied times';
+
+  // 2. Favorite technique (from this week, fallback to all-time)
+  const patternCounts = {};
+  const sourceSessions = weekSessions.length >= 2 ? weekSessions : allSessions;
+  sourceSessions.forEach(s => {
+    patternCounts[s.pattern] = (patternCounts[s.pattern] || 0) + 1;
+  });
+  const favPattern = Object.entries(patternCounts).sort((a, b) => b[1] - a[1])[0];
+  const favName = favPattern ? (breathingPatterns[favPattern[0]]?.name || favPattern[0]) : null;
+
+  // 3. Mood improvement — compare mood checkins within 2h before and after sessions
+  let moodImproved = 0;
+  let moodTracked = 0;
+  const TWO_HOURS = 2 * 60 * 60 * 1000;
+
+  allSessions.forEach(s => {
+    const sessionTime = new Date(s.startTime).getTime();
+    const before = appState.moodCheckins.filter(m => {
+      const t = new Date(m.date).getTime();
+      return t >= sessionTime - TWO_HOURS && t < sessionTime;
+    });
+    const after = appState.moodCheckins.filter(m => {
+      const t = new Date(m.date).getTime();
+      return t > sessionTime && t <= sessionTime + TWO_HOURS;
+    });
+    if (before.length > 0 && after.length > 0) {
+      moodTracked++;
+      const avgBefore = before.reduce((sum, m) => sum + m.mood, 0) / before.length;
+      const avgAfter = after.reduce((sum, m) => sum + m.mood, 0) / after.length;
+      if (avgAfter > avgBefore) moodImproved++;
     }
-    totalComparisons++;
+  });
+
+  const improvementRate = moodTracked > 0 ? Math.round((moodImproved / moodTracked) * 100) : 0;
+
+  // 4. Average session duration
+  const avgDuration = allSessions.length > 0
+    ? Math.round(allSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / allSessions.length)
+    : 0;
+
+  // Build insights
+  let insights = [];
+
+  if (favName) {
+    const favPct = Math.round((favPattern[1] / sourceSessions.length) * 100);
+    insights.push(`Your go-to is <strong>${favName}</strong> — ${favPct}% of your sessions.`);
   }
+
+  if (bestTime[1] > 0) {
+    insights.push(`You practice most in the <strong>${timePhrase}</strong>.`);
+  }
+
+  if (moodTracked > 0) {
+    if (improvementRate >= 60) {
+      insights.push(`Mood improves after <strong>${improvementRate}%</strong> of your sessions — your practice is working.`);
+    } else if (improvementRate >= 30) {
+      insights.push(`Mood improves after <strong>${improvementRate}%</strong> of your sessions. Keep going — consistency builds results.`);
+    } else {
+      insights.push(`Mood improvement is subtle at <strong>${improvementRate}%</strong>. Try longer sessions or a different technique.`);
+    }
+  } else {
+    insights.push('Log mood check-ins before and after sessions to see how your practice affects your mood.');
+  }
+
+  if (avgDuration > 0) {
+    insights.push(`Average session: <strong>${avgDuration} min</strong>.`);
+  }
+
+  if (appState.currentStreak > 1) {
+    insights.push(`You're on a <strong>${appState.currentStreak}-day streak</strong>. ${appState.currentStreak >= 7 ? 'Incredible discipline.' : 'Keep it going!'}`);
+  }
+
+  const html = insights.map(p => `<p style="margin-bottom:8px;">${p}</p>`).join('');
+  insightsContainer.innerHTML = html;
   
-  const improvementRate = totalComparisons > 0 ? Math.round((improvedCount / totalComparisons) * 100) : 0;
-  
-  insightsContainer.innerHTML = `
-    <p>You breathe most often around <strong>${bestTime}</strong>.</p>
-    <p style="margin-top: 8px;">Your average mood improves after <strong>${improvementRate}%</strong> of your sessions this week.</p>
-  `;
-  
-  document.getElementById('insightsText').innerHTML = `
-    <p>You breathe most often around <strong>${bestTime}</strong>.</p>
-    <p style="margin-top: 8px;">Your average mood improves after <strong>${improvementRate}%</strong> of your sessions this week.</p>
-  `;
+  document.getElementById('insightsText').innerHTML = html;
 }
 
 // Settings Functions
