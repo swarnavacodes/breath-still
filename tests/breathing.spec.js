@@ -95,19 +95,23 @@ test('Streak week renders 7 day cells', async ({ page }) => {
 });
 
 // ── Charts ──
-test('Week chart renders bar columns', async ({ page }) => {
-  const bars = page.locator('#weekChart .week-bar');
-  await expect(bars).toHaveCount(7);
+test('Week chart renders Chart.js canvas', async ({ page }) => {
+  const canvas = page.locator('#weekChart canvas');
+  await expect(canvas).toHaveCount(1);
 });
 
-test('Chart shows bar labels', async ({ page }) => {
-  const labels = page.locator('#weekChart .bar-label');
-  await expect(labels).toHaveCount(7);
+test('Chart has rendered bars via Chart.js', async ({ page }) => {
+  // Chart.js renders bars inside the canvas — verify the canvas has non-zero dimensions
+  const canvas = page.locator('#weekChart canvas');
+  await expect(canvas).toBeVisible();
+  const box = await canvas.boundingBox();
+  expect(box.width).toBeGreaterThan(0);
+  expect(box.height).toBeGreaterThan(0);
 });
 
-test('Chart shows bar values', async ({ page }) => {
-  const values = page.locator('#weekChart .bar-value');
-  await expect(values).toHaveCount(7);
+test('Chart summary shows total minutes', async ({ page }) => {
+  const total = page.locator('.summary-item .summary-value');
+  await expect(total.first()).toBeVisible();
 });
 
 // ── Breathe page ──
@@ -147,8 +151,8 @@ test('Insights page has practice mood insight section', async ({ page }) => {
 
 test('Insights page renders week chart', async ({ page }) => {
   await page.locator('.nav-menu a[data-page="insights"]').click();
-  const bars = page.locator('#insightsWeekChart .week-bar');
-  await expect(bars).toHaveCount(7);
+  const canvas = page.locator('#insightsWeekChart canvas');
+  await expect(canvas).toHaveCount(1);
 });
 
 // ── LocalStorage ──

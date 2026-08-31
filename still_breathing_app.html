@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Still — Breathing & Self-Awareness</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
@@ -607,100 +608,9 @@ select:focus-visible,
   margin-left: 2px;
 }
 
-/* Session count badge on top of each bar */
-.bar-count {
-  position: absolute;
-  top: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--primary);
-  background: var(--primary-light);
-  padding: 1px 6px;
-  border-radius: 999px;
-  min-width: 18px;
-  text-align: center;
-}
-
-/* Week Overview */
-.week-chart { display: flex; align-items: flex-end; gap: 14px; height: 140px; padding-top: 28px; padding-bottom: 6px; }
-.week-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; cursor: pointer; }
-
-.week-bar .bar {
-  width: 100%;
-  max-width: 34px;
-  background: #c5ddd8;
-  border-radius: 4px;
-  transition: background .3s, transform .18s var(--ease);
-}
-
-.week-bar:hover .bar { transform: scaleY(1.05); transform-origin: bottom; }
-
-.week-bar .bar.active { background: var(--primary); }
-.week-bar .bar-label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
-.week-bar .bar-value { font-size: 10.5px; color: var(--muted-soft); }
-
-/* Monthly view: smaller bars, grouped by week */
-.week-chart.monthly { gap: 4px; height: 130px; }
-.week-chart.monthly .week-bar { gap: 4px; }
-.week-chart.monthly .week-bar .bar { max-width: 100%; }
-.week-chart.monthly .week-bar .bar-label { font-size: 10px; }
-.week-chart.monthly .week-bar .bar-value { display: none; }
-.week-chart.monthly .bar-count { top: -16px; font-size: 9.5px; padding: 0 5px; }
-
-/* Month week dividers */
-.week-divider {
-  width: 1px;
-  background: var(--border-soft);
-  align-self: stretch;
-  margin: 0 4px;
-}
-
-/* Mood trend line overlay */
-.week-chart { position: relative; }
-
-/* Custom hover tooltip for week bars */
-.week-bar::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: var(--ink);
-  color: #fff;
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 7px 11px;
-  border-radius: 8px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .18s var(--ease), transform .18s var(--ease);
-  z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  letter-spacing: 0.1px;
-}
-
-.week-bar::after {
-  content: '';
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  border: 5px solid transparent;
-  border-top-color: var(--ink);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .18s var(--ease), transform .18s var(--ease);
-  z-index: 10;
-}
-
-.week-bar:hover::before,
-.week-bar:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+/* Week Overview — Chart.js canvas wrapper */
+.week-chart { position: relative; height: 160px; padding-top: 4px; }
+.week-chart canvas { width: 100% !important; height: 100% !important; }
 
 /* Insights Card */
 .insights-content { display: flex; gap: 15px; align-items: flex-start; }
@@ -2373,47 +2283,48 @@ let currentChartView = 'week';
 
 function setChartView(view) {
   currentChartView = view;
-  // Update toggle buttons
   document.querySelectorAll('#viewToggle .toggle-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-view') === view);
   });
   renderWeekChart();
 }
 
+const chartInstances = {};
+
 function renderWeekChart(targetId) {
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const container = document.getElementById(targetId || 'weekChart');
+  const containerId = targetId || 'weekChart';
+  const container = document.getElementById(containerId);
   if (!container) return;
-  container.innerHTML = '';
 
   const today = new Date();
   const isHome = !targetId || targetId === 'weekChart';
-
-  // For non-home pages, always show week view
   const view = isHome ? currentChartView : 'week';
   const days = view === 'week' ? 7 : 30;
   const maxMinutes = view === 'week' ? 30 : 20;
 
-  // Update title and subtitle on home page
   if (isHome) {
     const title = document.getElementById('weekChartTitle');
     const subtitle = document.getElementById('weekChartSubtitle');
     if (title) title.textContent = view === 'week' ? 'This week overview' : 'This month overview';
     if (subtitle) subtitle.textContent = view === 'week' ? 'Last 7 days' : 'Last 30 days';
-    // Add/remove monthly class for CSS
-    container.classList.toggle('monthly', view === 'month');
-    // Show/hide toggle
     const toggle = document.getElementById('viewToggle');
     if (toggle) toggle.style.display = '';
   } else {
-    container.classList.remove('monthly');
     const toggle = document.getElementById('viewToggle');
     if (toggle) toggle.style.display = 'none';
   }
 
-  // Render bars (with week dividers for monthly view)
-  let weekCount = 0;
-  const dayCount = days;
+  // Destroy existing chart
+  if (chartInstances[containerId]) {
+    chartInstances[containerId].destroy();
+    chartInstances[containerId] = null;
+  }
+
+  // Build data arrays (oldest to newest)
+  const labels = [];
+  const data = [];
+  const bgColors = [];
+  const tooltips = [];
 
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
@@ -2422,40 +2333,93 @@ function renderWeekChart(targetId) {
     const daySessions = appState.sessions.filter(s =>
       new Date(s.startTime).toDateString() === date.toDateString()
     );
-
     const totalMinutes = daySessions.reduce((sum, s) => sum + (s.duration || 0), 0);
     const sessionCount = daySessions.length;
-    const height = Math.min((totalMinutes / maxMinutes) * 120, 120);
 
-    // Format date for tooltip
+    labels.push(view === 'week'
+      ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][date.getDay()]
+      : date.getDate().toString()
+    );
+    data.push(totalMinutes);
+    bgColors.push(totalMinutes > 0 ? '#2A9D8F' : '#c5ddd8');
+
     const dateLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-    const tooltipText = sessionCount === 0
-      ? `${dateLabel} — No sessions`
-      : `${dateLabel} — ${sessionCount} session${sessionCount > 1 ? 's' : ''} (${totalMinutes} min)`;
-
-    const barEl = document.createElement('div');
-    barEl.className = 'week-bar';
-    barEl.setAttribute('data-tooltip', tooltipText);
-    const countBadge = sessionCount > 0 ? `<span class="bar-count">${sessionCount}</span>` : '';
-    const labelText = view === 'week'
-      ? dayNames[date.getDay()]
-      : date.getDate().toString();
-
-    barEl.innerHTML = `
-      ${countBadge}
-      <div class="bar ${totalMinutes > 0 ? 'active' : ''}" style="height: ${height || 10}px"></div>
-      <span class="bar-label">${labelText}</span>
-      ${view === 'week' ? `<span class="bar-value">${totalMinutes} min</span>` : ''}
-    `;
-    container.appendChild(barEl);
-
-    // Add week divider for monthly view (after every 7 bars)
-    if (view === 'month' && i % 7 === 0 && i !== 0) {
-      const divider = document.createElement('div');
-      divider.className = 'week-divider';
-      container.appendChild(divider);
-    }
+    tooltips.push(sessionCount === 0
+      ? `${dateLabel}\nNo sessions`
+      : `${dateLabel}\n${sessionCount} session${sessionCount > 1 ? 's' : ''} · ${totalMinutes} min`
+    );
   }
+
+  // Create canvas
+  container.innerHTML = '';
+  container.classList.toggle('monthly', view === 'month');
+  const canvas = document.createElement('canvas');
+  container.appendChild(canvas);
+
+  // Custom tooltip
+  const tooltipPlugin = {
+    id: 'barTooltip',
+    external: function(context) {
+      let tooltipEl = document.getElementById('chartjs-tooltip');
+      if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.id = 'chartjs-tooltip';
+        tooltipEl.style.cssText = 'position:absolute;pointer-events:none;background:#1a2332;color:#fff;font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:pre-line;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity .15s;opacity:0;';
+        document.body.appendChild(tooltipEl);
+      }
+      const tooltip = context.tooltip;
+      if (tooltip.opacity === 0) { tooltipEl.style.opacity = '0'; return; }
+      const idx = tooltip.dataPoints?.[0]?.dataIndex;
+      if (idx === undefined) return;
+      tooltipEl.textContent = tooltips[idx] || '';
+      const rect = context.chart.canvas.getBoundingClientRect();
+      tooltipEl.style.left = rect.left + window.scrollX + tooltip.caretX + 'px';
+      tooltipEl.style.top = rect.top + window.scrollY + tooltip.caretY - 10 + 'px';
+      tooltipEl.style.transform = 'translate(-50%, -100%)';
+      tooltipEl.style.opacity = '1';
+    }
+  };
+
+  const maxBarWidth = view === 'month' ? 20 : 34;
+  chartInstances[containerId] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: bgColors,
+        borderRadius: 4,
+        barPercentage: 0.6,
+        categoryPercentage: 0.7,
+        maxBarThickness: maxBarWidth,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            font: { family: 'Manrope', size: 11, weight: '600' },
+            color: '#868e96',
+          }
+        },
+        y: {
+          display: false,
+          beginAtZero: true,
+          max: Math.max(maxMinutes, ...data),
+        }
+      },
+      animation: { duration: 400, easing: 'easeOutQuart' },
+    },
+    plugins: [tooltipPlugin],
+  });
 
   // Render summary footer on home page
   if (isHome) {
