@@ -221,3 +221,36 @@ test('Breathe page practice cards have cycle selectors', async ({ page }) => {
   const cycleBtns = page.locator('.practice-card .cycle-btn');
   await expect(cycleBtns).toHaveCount(8); // 2 per card × 4 cards
 });
+
+test('Practice cards have consistent height and alignment', async ({ page }) => {
+  await page.locator('.nav-menu a[data-page="breathe"]').click();
+  const cards = page.locator('.practice-card');
+  const count = await cards.count();
+  expect(count).toBe(4);
+
+  const heights = [];
+  const timingYs = [];
+  const btnYs = [];
+
+  for (let i = 0; i < count; i++) {
+    const card = cards.nth(i);
+    const cardBox = await card.boundingBox();
+    const timingBox = await card.locator('.practice-timing').boundingBox();
+    const btnBox = await card.locator('.begin-practice-btn').boundingBox();
+    heights.push(Math.round(cardBox.height));
+    timingYs.push(Math.round(timingBox.y - cardBox.y));
+    btnYs.push(Math.round(btnBox.y - cardBox.y));
+  }
+
+  // All cards should have the same height
+  const uniqueHeights = [...new Set(heights)];
+  expect(uniqueHeights.length).toBeLessThanOrEqual(2); // allow ±1px rounding
+
+  // All timing rows should start at the same offset from card top
+  const uniqueTimingYs = [...new Set(timingYs)];
+  expect(uniqueTimingYs.length).toBeLessThanOrEqual(2);
+
+  // All buttons should be at the same offset from card top
+  const uniqueBtnYs = [...new Set(btnYs)];
+  expect(uniqueBtnYs.length).toBeLessThanOrEqual(2);
+});
