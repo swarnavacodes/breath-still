@@ -657,6 +657,67 @@ select:focus-visible,
   margin: 0 4px;
 }
 
+/* Mood trend line overlay */
+.week-chart { position: relative; }
+
+.mood-trend-svg {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 20px;
+  height: 120px;
+  width: calc(100% - 28px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.mood-trend-svg.monthly { left: 4px; right: 4px; width: calc(100% - 8px); }
+
+.mood-trend-svg path.trend-line {
+  fill: none;
+  stroke: #f59e0b;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mood-trend-svg path.trend-area {
+  fill: url(#moodGradient);
+  opacity: 0.4;
+}
+
+.mood-trend-svg circle.trend-dot {
+  fill: #f59e0b;
+  stroke: #fff;
+  stroke-width: 2;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-swatch.bar { background: var(--primary); }
+.legend-swatch.line { background: #f59e0b; border-radius: 50%; width: 10px; height: 10px; }
+
 /* Custom hover tooltip for week bars */
 .week-bar::before {
   content: attr(data-tooltip);
@@ -2410,6 +2471,9 @@ function renderWeekChart(targetId) {
 
   // Render bars (with week dividers for monthly view)
   let weekCount = 0;
+  const moodDataPoints = [];
+  const dayCount = days;
+
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
@@ -2417,6 +2481,14 @@ function renderWeekChart(targetId) {
     const daySessions = appState.sessions.filter(s =>
       new Date(s.startTime).toDateString() === date.toDateString()
     );
+
+    const dayMoods = appState.moodCheckins.filter(m =>
+      new Date(m.date).toDateString() === date.toDateString()
+    );
+    const avgMood = dayMoods.length > 0
+      ? dayMoods.reduce((sum, m) => sum + m.mood, 0) / dayMoods.length
+      : null;
+    moodDataPoints.push({ dayIndex: i, mood: avgMood, date });
 
     const totalMinutes = daySessions.reduce((sum, s) => sum + (s.duration || 0), 0);
     const sessionCount = daySessions.length;
@@ -2452,10 +2524,103 @@ function renderWeekChart(targetId) {
     }
   }
 
+  // Render mood trend line overlay (only for week view, only if we have any mood data)
+  const hasMoodData = moodDataPoints.some(p => p.mood !== null);
+  if (isHome && view === 'week' && hasMoodData) {
+    renderMoodTrend(container, moodDataPoints, dayCount, 120, view);
+  } else if (isHome && view === 'month' && hasMoodData) {
+    renderMoodTrend(container, moodDataPoints, dayCount, 100, view);
+  }
+
   // Render summary footer on home page
   if (isHome) {
     renderChartSummary(view);
   }
+}
+
+function renderMoodTrend(container, points, totalDays, chartHeight, view) {
+  // Build SVG path for mood line
+  // Mood values are 1-5. Map: 1 (low) -> bottom, 5 (high) -> top
+  // Reserve 10% padding top/bottom for dot visibility
+  const padTop = chartHeight * 0.05;
+  const padBottom = chartHeight * 0.05;
+  const usableHeight = chartHeight - padTop - padBottom;
+
+  // Calculate x position for each point (0-based, evenly distributed)
+  // For monthly view, account for 4 week dividers (4 extra slots)
+  const xSlots = view === 'month' ? totalDays + 4 : totalDays;
+  const xStep = 100 / (xSlots - 1);
+
+  // Get all available mood values
+  const availablePoints = points.filter(p => p.mood !== null);
+  if (availablePoints.length === 0) return;
+
+  // Build the path coordinates
+  const coords = points.map((p, idx) => {
+    if (p.mood === null) return null;
+    // Calculate actual x position considering dividers
+    let xPercent;
+    if (view === 'month') {
+      // The days are rendered in order from oldest to newest (i=29 down to i=0)
+      // but we pushed in that order. Day 29 (oldest) is at the left.
+      // For monthly view, dividers are added every 7 days at positions where i % 7 === 0 && i !== 0
+      // i=29 starts at left, i=0 ends at right
+      // Dividers appear at i=28, 21, 14, 7 (4 dividers)
+      // Total visual slots = 30 days + 4 dividers = 34
+      // x position for day index from old to new (29 to 0):
+      // We need to map the index to visual position
+      // Actually, our points array is in the order they were created (i=29, 28, ..., 0)
+      // So index 0 in the array is the leftmost (oldest day)
+      // For view='month' with dividers at i=28,21,14,7:
+      // Each divider adds 1 extra slot
+      let dividersBefore = 0;
+      for (let d = 29; d > 29 - idx; d--) {
+        if (d % 7 === 0 && d !== 0) dividersBefore++;
+      }
+      const visualIndex = idx + dividersBefore;
+      xPercent = (visualIndex / (totalDays + 4 - 1)) * 100;
+    } else {
+      xPercent = (idx / (totalDays - 1)) * 100;
+    }
+    // Map mood (1-5) to y position (higher mood = lower y value)
+    const moodPercent = (p.mood - 1) / 4; // 0 to 1
+    const yPx = padTop + (1 - moodPercent) * usableHeight;
+    return { x: xPercent, y: yPx, mood: p.mood, idx };
+  }).filter(c => c !== null);
+
+  if (coords.length === 0) return;
+
+  // Build polyline path
+  const linePath = coords.map((c, i) =>
+    `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`
+  ).join(' ');
+
+  // Build area path (for fill below the line)
+  const lastCoord = coords[coords.length - 1];
+  const firstCoord = coords[0];
+  const areaPath = `${linePath} L ${lastCoord.x} ${chartHeight} L ${firstCoord.x} ${chartHeight} Z`;
+
+  // Create SVG element
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'mood-trend-svg' + (view === 'month' ? ' monthly' : ''));
+  svg.setAttribute('viewBox', `0 0 100 ${chartHeight}`);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.style.height = chartHeight + 'px';
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path class="trend-area" d="${areaPath}"/>
+    <path class="trend-line" d="${linePath}"/>
+    ${coords.map(c => `<circle class="trend-dot" cx="${c.x}" cy="${c.y}" r="${view === 'month' ? 1.8 : 3}"/>`).join('')}
+  `;
+
+  container.style.position = 'relative';
+  container.appendChild(svg);
 }
 
 function renderChartSummary(view) {
