@@ -681,6 +681,7 @@ select:focus-visible,
 
 .practice-timing { display: flex; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
 .timing-item { text-align: center; flex: 1; }
+.timing-item.timing-empty { visibility: hidden; }
 .timing-item .time { font-size: 19px; font-weight: 800; color: var(--primary); }
 .timing-item .label { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
 
@@ -691,6 +692,7 @@ select:focus-visible,
   justify-content: center;
   gap: 14px;
   padding: 12px 0 6px;
+  margin-top: auto;
 }
 .cycle-selector label {
   font-size: 12px;
@@ -2696,6 +2698,7 @@ function renderBreathPractices() {
       timingHTML = `
         <div class="practice-timing">
           <div class="timing-item"><div class="time">4s</div><div class="label">Inhale</div></div>
+          <div class="timing-item timing-empty"></div>
           <div class="timing-item"><div class="time">6s</div><div class="label">Exhale</div></div>
         </div>
       `;
@@ -2703,6 +2706,7 @@ function renderBreathPractices() {
       timingHTML = `
         <div class="practice-timing">
           <div class="timing-item"><div class="time">5s</div><div class="label">Inhale</div></div>
+          <div class="timing-item timing-empty"></div>
           <div class="timing-item"><div class="time">5s</div><div class="label">Exhale</div></div>
         </div>
       `;
