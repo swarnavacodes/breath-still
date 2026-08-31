@@ -456,6 +456,34 @@ select:focus-visible,
 .mood-question { font-size: 13.5px; color: var(--muted); margin-bottom: 16px; }
 .mood-emojis { display: flex; gap: 10px; margin-bottom: 18px; }
 
+/* Last 5 moods summary */
+.mood-last-five {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.mood-last-five:empty { display: none; }
+.mood-last-five-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.mood-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary-light);
+  border-radius: 999px;
+  padding: 5px 12px 5px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+.mood-chip svg { flex-shrink: 0; }
+
 .mood-emoji {
   width: 44px;
   height: 44px;
@@ -1578,9 +1606,9 @@ select:focus-visible,
         <div class="card-header">
           <h4>Mood history</h4>
         </div>
-        <div id="moodHistory">
-          <p style="color: #868e96; text-align: center; padding: 40px;">No mood check-ins yet. Start tracking your mood!</p>
-        </div>
+        <div id="moodLastFive" class="mood-last-five"></div>
+        <div id="moodChart" style="height: 180px; margin: 16px 0;"></div>
+        <div id="moodHistory"></div>
       </div>
     </div>
   </div>
@@ -2879,14 +2907,123 @@ function renderSessionHistory() {
   container.innerHTML = html;
 }
 
+const moodChartKey = { value: null };
+
 function renderMoodHistory() {
   const container = document.getElementById('moodHistory');
-  
+  const lastFiveEl = document.getElementById('moodLastFive');
+  const chartEl = document.getElementById('moodChart');
+
   if (appState.moodCheckins.length === 0) {
+    if (lastFiveEl) lastFiveEl.innerHTML = '';
+    if (chartEl) chartEl.innerHTML = '';
     container.innerHTML = '<p style="color: #868e96; text-align: center; padding: 40px;">No mood check-ins yet. Start tracking your mood!</p>';
     return;
   }
-  
+
+  const sorted = [...appState.moodCheckins].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // -- Last 5 moods chips --
+  const moodSvgsSmall = {
+    1: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/></svg>',
+    2: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-1.5-4-1.5-4 1.5-4 1.5"/></svg>',
+    3: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/></svg>',
+    4: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>',
+    5: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>'
+  };
+  const moodLabels = { 1: 'Awful', 2: 'Bad', 3: 'Okay', 4: 'Good', 5: 'Great' };
+  const recent5 = sorted.slice(0, 5);
+
+  if (lastFiveEl) {
+    lastFiveEl.innerHTML = recent5.length > 0
+      ? `<span class="mood-last-five-label">Last 5:</span>` +
+        recent5.map(m => {
+          const d = new Date(m.date);
+          const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          return `<span class="mood-chip">${moodSvgsSmall[m.mood]}${time}</span>`;
+        }).join('')
+      : '';
+  }
+
+  // -- Chart.js mood trend --
+  if (chartEl) {
+    chartEl.innerHTML = '';
+    const last30 = sorted.slice(0, 30).reverse(); // oldest first for chart
+    if (last30.length > 0) {
+      const labels = last30.map(m => {
+        const d = new Date(m.date);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+      const data = last30.map(m => m.mood);
+      const colors = data.map(v => {
+        if (v <= 2) return '#e06c75';
+        if (v === 3) return '#e5c07b';
+        return '#2A9D8F';
+      });
+
+      const canvas = document.createElement('canvas');
+      chartEl.appendChild(canvas);
+
+      if (moodChartKey.value) {
+        moodChartKey.value.destroy();
+        moodChartKey.value = null;
+      }
+
+      moodChartKey.value = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderRadius: 4,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7,
+            maxBarThickness: 20,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              backgroundColor: '#1a2332',
+              cornerRadius: 8,
+              padding: 8,
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0].dataIndex;
+                  const m = last30[idx];
+                  return moodLabels[m.mood] || '';
+                },
+                label: (item) => {
+                  const m = last30[item.dataIndex];
+                  const d = new Date(m.date);
+                  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              border: { display: false },
+              ticks: { font: { family: 'Manrope', size: 10, weight: '600' }, color: '#868e96', maxRotation: 0 }
+            },
+            y: {
+              min: 0, max: 5.5,
+              display: false,
+            }
+          },
+          animation: { duration: 350 },
+        }
+      });
+    }
+  }
+
+  // -- History list --
   const moodSvgs = {
     1: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
     2: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-1.5-4-1.5-4 1.5-4 1.5"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
@@ -2894,12 +3031,10 @@ function renderMoodHistory() {
     4: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
     5: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>'
   };
-  const sorted = [...appState.moodCheckins].sort((a, b) => new Date(b.date) - new Date(a.date));
-  
-  let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+
+  let html = '<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">';
   sorted.slice(0, 10).forEach(checkin => {
     const date = new Date(checkin.date);
-    
     html += `
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-radius: 12px;">
         <div style="display: flex; align-items: center; gap: 12px;">
@@ -2913,7 +3048,6 @@ function renderMoodHistory() {
     `;
   });
   html += '</div>';
-  
   container.innerHTML = html;
 }
 
