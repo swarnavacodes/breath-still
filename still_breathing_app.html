@@ -348,6 +348,14 @@ select:focus-visible,
 
 .start-btn:hover { background: var(--primary-dark); }
 
+.home-cycle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 0 14px;
+}
+
 .breathing-ring {
   width: 220px;
   height: 220px;
@@ -658,6 +666,50 @@ select:focus-visible,
 .timing-item { text-align: center; flex: 1; }
 .timing-item .time { font-size: 19px; font-weight: 800; color: var(--primary); }
 .timing-item .label { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+
+/* Cycle selector */
+.cycle-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px 0 6px;
+}
+.cycle-selector label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.cycle-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-soft);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  line-height: 1;
+}
+.cycle-btn:hover { border-color: var(--primary); color: var(--primary); }
+.cycle-count {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  min-width: 20px;
+  text-align: center;
+}
+.cycle-est {
+  font-size: 11px;
+  color: var(--muted-soft);
+  text-align: center;
+  margin-top: 2px;
+}
 
 .begin-practice-btn {
   background: var(--primary);
@@ -1225,6 +1277,12 @@ select:focus-visible,
             <div class="label">Exhale</div>
           </div>
         </div>
+        <div class="home-cycle-row">
+          <button class="cycle-btn" onclick="adjustHomeCycles(-1)">−</button>
+          <span class="cycle-count" id="homeCycleCount">5</span>
+          <span style="font-size:12px;color:var(--muted);font-weight:600;">cycles</span>
+          <button class="cycle-btn" onclick="adjustHomeCycles(1)">+</button>
+        </div>
         <button class="start-btn" onclick="startBreathingSession()">Start session ▶</button>
       </div>
 
@@ -1590,7 +1648,7 @@ select:focus-visible,
   <div class="session-modal" style="position: relative;">
     <button class="close-btn" onclick="closeSessionModal()">×</button>
     <h3 id="sessionTitle">4-7-8 Breathing</h3>
-    <p class="subtitle">Follow the circle</p>
+    <p class="subtitle" id="sessionCycleInfo">5 cycles · 1m 35s</p>
     
     <div class="breathing-container">
       <!-- SVG Progress Ring -->
@@ -1658,8 +1716,19 @@ const appState = {
   longestStreak: 0,
   lastPracticeDate: null,
   currentSession: null,
-  soundEnabled: true
+  soundEnabled: true,
+  cycleCounts: { '4-7-8': 5, 'box': 5, '4-6': 5, '5-5': 5 }
 };
+
+function getCycleDuration(key) {
+  const p = breathingPatterns[key];
+  return (p.inhale || 0) + (p.hold || 0) + (p.exhale || 0);
+}
+
+function getTotalSessionSeconds(key) {
+  const cycles = appState.cycleCounts[key] || 5;
+  return cycles * getCycleDuration(key);
+}
 
 // Breathing patterns
 const breathingPatterns = {
@@ -1796,6 +1865,7 @@ function showConfirm(message) {
 // Session timer variables
 let sessionTimer = null;
 let sessionTimeRemaining = 300; // 5 minutes in seconds
+let totalSessionDuration = 300;
 let sessionInterval = null;
 let breathingIntervals = [];   // tracks all breathing-cycle intervals so pause can stop them
 let pauseTimeout = null;        // tracks the setTimeout that chains breathing cycles
@@ -1947,22 +2017,33 @@ async function saveMoodPage() {
 }
 
 // Breathing Session - IMPROVED
+function adjustHomeCycles(delta) {
+  const key = appState.defaultPractice;
+  appState.cycleCounts[key] = Math.max(1, Math.min(30, (appState.cycleCounts[key] || 5) + delta));
+  saveData();
+  document.getElementById('homeCycleCount').textContent = appState.cycleCounts[key];
+}
+
 function startBreathingSession() {
-  const pattern = breathingPatterns[appState.defaultPractice];
+  const key = appState.defaultPractice;
+  const pattern = breathingPatterns[key];
+  const cycles = appState.cycleCounts[key] || 5;
+  const totalSeconds = getTotalSessionSeconds(key);
+
   appState.currentSession = {
-    pattern: appState.defaultPractice,
+    pattern: key,
     startTime: new Date().toISOString(),
-    cycles: 0
+    cycles: 0,
+    targetCycles: cycles
   };
 
-  sessionTimeRemaining = 300; // Reset to 5 minutes
+  totalSessionDuration = totalSeconds;
+  sessionTimeRemaining = totalSeconds;
   document.getElementById('sessionTitle').textContent = pattern.name;
+  document.getElementById('sessionCycleInfo').textContent = `${cycles} cycle${cycles > 1 ? 's' : ''} · ${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60 > 0 ? totalSeconds % 60 + 's' : ''}`;
   document.getElementById('sessionModal').classList.add('active');
   
-  // Start session countdown
   startSessionCountdown();
-  
-  // Start breathing cycle after 1 second
   setTimeout(() => startBreathingCycle(pattern), 1000);
 }
 
@@ -1991,8 +2072,8 @@ function updateSessionTimeDisplay() {
 function updateProgressRing() {
   const circle = document.getElementById('progressRingFill');
   const radius = 150;
-  const circumference = 2 * Math.PI * radius; // 942.48
-  const progress = sessionTimeRemaining / 300; // 300 seconds = 5 minutes
+  const circumference = 2 * Math.PI * radius;
+  const progress = sessionTimeRemaining / totalSessionDuration;
   const offset = circumference - (progress * circumference);
   
   circle.style.strokeDashoffset = offset;
@@ -2135,7 +2216,7 @@ function finishSession(isEarly) {
   }
 
   if (appState.currentSession) {
-    const duration = Math.floor((300 - sessionTimeRemaining) / 60);
+    const duration = Math.floor((totalSessionDuration - sessionTimeRemaining) / 60);
     
     appState.sessions.push({
       ...appState.currentSession,
@@ -2236,6 +2317,12 @@ function updateDisplay() {
   document.getElementById('dailyGoal').textContent = appState.dailyGoal;
   document.getElementById('streakCount').textContent = appState.currentStreak;
   document.getElementById('longestStreak').textContent = appState.longestStreak;
+  
+  // Update home page cycle count
+  const homeCycleEl = document.getElementById('homeCycleCount');
+  if (homeCycleEl) {
+    homeCycleEl.textContent = appState.cycleCounts[appState.defaultPractice] || 5;
+  }
   
   const goal = appState.dailyGoal;
   let message = 'Keep going!';
@@ -2488,6 +2575,15 @@ function renderBreathPractices() {
     card.onclick = () => selectPractice(key);
     card.ondblclick = () => startPracticeSession(key);
     
+    const cycles = appState.cycleCounts[key] || 5;
+    const secPerCycle = getCycleDuration(key);
+    const totalSec = cycles * secPerCycle;
+    const totalMin = Math.floor(totalSec / 60);
+    const totalRemSec = totalSec % 60;
+    const estTime = totalMin > 0
+      ? `${totalMin}m ${totalRemSec > 0 ? totalRemSec + 's' : ''}`
+      : `${totalSec}s`;
+
     let timingHTML = '';
     if (key === '4-7-8') {
       timingHTML = `
@@ -2525,9 +2621,28 @@ function renderBreathPractices() {
       <h4>${pattern.name}</h4>
       <p>${pattern.description}</p>
       ${timingHTML}
+      <div class="cycle-selector">
+        <label>Cycles</label>
+        <button class="cycle-btn" data-action="dec" data-key="${key}">−</button>
+        <span class="cycle-count" id="cycleCount_${key}">${cycles}</span>
+        <button class="cycle-btn" data-action="inc" data-key="${key}">+</button>
+      </div>
+      <div class="cycle-est" id="cycleEst_${key}">≈ ${estTime.trim()}</div>
       <button class="begin-practice-btn">Begin practice →</button>
     `;
     
+    card.querySelectorAll('.cycle-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const k = btn.dataset.key;
+        const action = btn.dataset.action;
+        if (action === 'inc') appState.cycleCounts[k] = Math.min((appState.cycleCounts[k] || 5) + 1, 30);
+        else appState.cycleCounts[k] = Math.max((appState.cycleCounts[k] || 5) - 1, 1);
+        saveData();
+        renderBreathPractices();
+      };
+    });
+
     const btn = card.querySelector('.begin-practice-btn');
     btn.onclick = (e) => {
       e.stopPropagation();
