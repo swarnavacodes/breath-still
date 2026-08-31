@@ -195,3 +195,29 @@ test('Session modal can be closed', async ({ page }) => {
   await page.locator('#sessionModal .close-btn').click();
   await expect(page.locator('#sessionModal')).not.toHaveClass(/active/);
 });
+
+// ── Layout regression ──
+test('Home breathing card fits above the fold', async ({ page }) => {
+  const card = page.locator('.breathing-card');
+  const box = await card.boundingBox();
+  expect(box).toBeTruthy();
+  expect(box.y + box.height).toBeLessThan(600);
+});
+
+test('Home breathing card contains timers, cycles, and start button', async ({ page }) => {
+  const card = page.locator('.breathing-card');
+  await expect(card.locator('.timer-box')).toHaveCount(3);
+  await expect(card.locator('.cycle-btn')).toHaveCount(2);
+  await expect(card.locator('.start-btn')).toBeVisible();
+});
+
+test('Home page tip and meditation ring are visible', async ({ page }) => {
+  await expect(page.locator('#dailyTip')).toBeVisible();
+  await expect(page.locator('#breathingRing')).toBeVisible();
+});
+
+test('Breathe page practice cards have cycle selectors', async ({ page }) => {
+  await page.locator('.nav-menu a[data-page="breathe"]').click();
+  const cycleBtns = page.locator('.practice-card .cycle-btn');
+  await expect(cycleBtns).toHaveCount(8); // 2 per card × 4 cards
+});
