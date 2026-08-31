@@ -511,6 +511,29 @@ select:focus-visible,
 .mood-emoji[data-mood="4"] { background: #d4f0ec; }
 .mood-emoji[data-mood="5"] { background: #b8e6d9; }
 
+/* Confidence selector */
+.confidence-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
+.confidence-label { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+.confidence-row { display: flex; gap: 6px; }
+.confidence-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all .15s;
+}
+.confidence-btn:hover { border-color: var(--primary); }
+.confidence-btn.selected { border-color: var(--primary); background: var(--primary-light); }
+.confidence-btn .num { font-size: 15px; font-weight: 800; color: var(--ink); }
+.confidence-btn .lbl { font-size: 9px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.confidence-btn.selected .num { color: var(--primary); }
+
 .mood-note {
   width: 100%;
   padding: 12px 14px;
@@ -1446,6 +1469,16 @@ select:focus-visible,
           <div class="mood-emoji" data-mood="5" title="Very Happy"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></div>
         </div>
         <textarea class="mood-note" placeholder="Optional note" id="moodNote"></textarea>
+        <div class="confidence-section">
+          <div class="confidence-label">How confident do you feel?</div>
+          <div class="confidence-row" id="homeConfidence">
+            <button class="confidence-btn" data-conf="1"><span class="num">1</span><span class="lbl">Shaky</span></button>
+            <button class="confidence-btn" data-conf="2"><span class="num">2</span><span class="lbl">Unsure</span></button>
+            <button class="confidence-btn" data-conf="3"><span class="num">3</span><span class="lbl">Steady</span></button>
+            <button class="confidence-btn" data-conf="4"><span class="num">4</span><span class="lbl">Strong</span></button>
+            <button class="confidence-btn" data-conf="5"><span class="num">5</span><span class="lbl">Unshakable</span></button>
+          </div>
+        </div>
         <button class="save-btn" onclick="saveMood()">Save</button>
       </div>
 
@@ -1599,6 +1632,16 @@ select:focus-visible,
           <div class="mood-emoji" data-mood="5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></div>
         </div>
         <textarea class="mood-note" placeholder="Optional note" id="moodPageNote" style="margin-bottom: 12px;"></textarea>
+        <div class="confidence-section">
+          <div class="confidence-label">How confident do you feel?</div>
+          <div class="confidence-row" id="moodPageConfidence">
+            <button class="confidence-btn" data-conf="1"><span class="num">1</span><span class="lbl">Shaky</span></button>
+            <button class="confidence-btn" data-conf="2"><span class="num">2</span><span class="lbl">Unsure</span></button>
+            <button class="confidence-btn" data-conf="3"><span class="num">3</span><span class="lbl">Steady</span></button>
+            <button class="confidence-btn" data-conf="4"><span class="num">4</span><span class="lbl">Strong</span></button>
+            <button class="confidence-btn" data-conf="5"><span class="num">5</span><span class="lbl">Unshakable</span></button>
+          </div>
+        </div>
         <button class="save-btn" onclick="saveMoodPage()">Save check-in</button>
       </div>
 
@@ -2084,6 +2127,26 @@ function initializeMoodSelectors() {
       this.classList.add('selected');
     });
   });
+  document.querySelectorAll('.confidence-row').forEach(row => {
+    row.querySelectorAll('.confidence-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        row.querySelectorAll('.confidence-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+    });
+  });
+}
+
+function getSelectedConfidence(containerSelector) {
+  const row = document.querySelector(containerSelector + ' .confidence-row');
+  if (!row) return null;
+  const sel = row.querySelector('.confidence-btn.selected');
+  return sel ? parseInt(sel.dataset.conf) : null;
+}
+
+function clearConfidence(containerSelector) {
+  const row = document.querySelector(containerSelector + ' .confidence-row');
+  if (row) row.querySelectorAll('.confidence-btn').forEach(b => b.classList.remove('selected'));
 }
 
 // Save Mood
@@ -2096,10 +2159,12 @@ async function saveMood() {
 
   const mood = parseInt(selected.getAttribute('data-mood'));
   const note = document.getElementById('moodNote').value.trim();
+  const confidence = getSelectedConfidence('#home .card');
 
   appState.moodCheckins.push({
     date: new Date().toISOString(),
     mood: mood,
+    confidence: confidence,
     note: note
   });
 
@@ -2107,6 +2172,7 @@ async function saveMood() {
 
   document.getElementById('moodNote').value = '';
   document.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
+  clearConfidence('#home .card');
 
   await showPopup('Mood saved!', 'success');
   updateInsights();
@@ -2121,10 +2187,12 @@ async function saveMoodPage() {
 
   const mood = parseInt(selected.getAttribute('data-mood'));
   const note = document.getElementById('moodPageNote').value.trim();
+  const confidence = getSelectedConfidence('#mood .card');
 
   appState.moodCheckins.push({
     date: new Date().toISOString(),
     mood: mood,
+    confidence: confidence,
     note: note
   });
 
@@ -2132,6 +2200,7 @@ async function saveMoodPage() {
 
   document.getElementById('moodPageNote').value = '';
   document.querySelectorAll('#mood .mood-emoji').forEach(e => e.classList.remove('selected'));
+  clearConfidence('#mood .card');
 
   await showPopup('Mood check-in saved!', 'success');
   renderMoodHistory();
@@ -2940,7 +3009,8 @@ function renderMoodHistory() {
         recent5.map(m => {
           const d = new Date(m.date);
           const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-          return `<span class="mood-chip">${moodSvgsSmall[m.mood]}${time}</span>`;
+          const conf = m.confidence != null ? ` C${m.confidence}` : '';
+          return `<span class="mood-chip">${moodSvgsSmall[m.mood]}${time}${conf}</span>`;
         }).join('')
       : '';
   }
@@ -2954,8 +3024,9 @@ function renderMoodHistory() {
         const d = new Date(m.date);
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       });
-      const data = last30.map(m => m.mood);
-      const colors = data.map(v => {
+      const moodData = last30.map(m => m.mood);
+      const confData = last30.map(m => m.confidence ?? null);
+      const moodColors = moodData.map(v => {
         if (v <= 2) return '#e06c75';
         if (v === 3) return '#e5c07b';
         return '#2A9D8F';
@@ -2973,20 +3044,41 @@ function renderMoodHistory() {
         type: 'bar',
         data: {
           labels,
-          datasets: [{
-            data,
-            backgroundColor: colors,
-            borderRadius: 4,
-            barPercentage: 0.6,
-            categoryPercentage: 0.7,
-            maxBarThickness: 20,
-          }]
+          datasets: [
+            {
+              label: 'Mood',
+              data: moodData,
+              backgroundColor: moodColors,
+              borderRadius: 4,
+              barPercentage: 0.5,
+              categoryPercentage: 0.7,
+              maxBarThickness: 16,
+              order: 2,
+            },
+            {
+              label: 'Confidence',
+              data: confData,
+              type: 'line',
+              borderColor: '#6c5ce7',
+              backgroundColor: 'rgba(108,92,231,0.1)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#6c5ce7',
+              tension: 0.3,
+              spanGaps: true,
+              order: 1,
+            }
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { font: { family: 'Manrope', size: 11, weight: '600' }, color: '#868e96', boxWidth: 10, boxHeight: 10, padding: 14 }
+            },
             tooltip: {
               enabled: true,
               backgroundColor: '#1a2332',
@@ -3000,6 +3092,9 @@ function renderMoodHistory() {
                 },
                 label: (item) => {
                   const m = last30[item.dataIndex];
+                  if (item.dataset.label === 'Confidence') {
+                    return m.confidence != null ? `Confidence: ${m.confidence}/5` : 'Confidence: N/A';
+                  }
                   const d = new Date(m.date);
                   return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
                 }
@@ -3035,12 +3130,15 @@ function renderMoodHistory() {
   let html = '<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">';
   sorted.slice(0, 10).forEach(checkin => {
     const date = new Date(checkin.date);
+    const confBadge = checkin.confidence != null
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(108,92,231,0.1);color:#6c5ce7;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;margin-left:8px;">C${checkin.confidence}</span>`
+      : '';
     html += `
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-radius: 12px;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div style="width: 32px; height: 32px; color: var(--primary);">${moodSvgs[checkin.mood]}</div>
           <div>
-            <p style="font-size: 13px; color: #868e96;">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+            <p style="font-size: 13px; color: #868e96;">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${confBadge}</p>
             ${checkin.note ? `<p style="font-size: 14px; margin-top: 4px;">${checkin.note}</p>` : ''}
           </div>
         </div>
