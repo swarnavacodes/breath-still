@@ -2364,7 +2364,7 @@ function renderWeekChart(targetId) {
       if (!tooltipEl) {
         tooltipEl = document.createElement('div');
         tooltipEl.id = 'chartjs-tooltip';
-        tooltipEl.style.cssText = 'position:absolute;pointer-events:none;background:#1a2332;color:#fff;font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:pre-line;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity .15s;opacity:0;';
+        tooltipEl.style.cssText = 'position:fixed;pointer-events:none;background:#1a2332;color:#fff;font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:pre-line;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity .15s;opacity:0;';
         document.body.appendChild(tooltipEl);
       }
       const tooltip = context.tooltip;
@@ -2373,8 +2373,8 @@ function renderWeekChart(targetId) {
       if (idx === undefined) return;
       tooltipEl.textContent = tooltips[idx] || '';
       const rect = context.chart.canvas.getBoundingClientRect();
-      tooltipEl.style.left = rect.left + window.scrollX + tooltip.caretX + 'px';
-      tooltipEl.style.top = rect.top + window.scrollY + tooltip.caretY - 10 + 'px';
+      tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
+      tooltipEl.style.top = (rect.top + tooltip.caretY - 10) + 'px';
       tooltipEl.style.transform = 'translate(-50%, -100%)';
       tooltipEl.style.opacity = '1';
     }
@@ -2397,6 +2397,10 @@ function renderWeekChart(targetId) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
       plugins: {
         legend: { display: false },
         tooltip: { enabled: false },
