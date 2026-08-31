@@ -2299,14 +2299,14 @@ function renderWeekChart(targetId) {
   const today = new Date();
   const isHome = !targetId || targetId === 'weekChart';
   const view = isHome ? currentChartView : 'week';
-  const days = view === 'week' ? 7 : 30;
+  const days = view === 'week' ? 7 : 31;
   const maxMinutes = view === 'week' ? 30 : 20;
 
   if (isHome) {
     const title = document.getElementById('weekChartTitle');
     const subtitle = document.getElementById('weekChartSubtitle');
     if (title) title.textContent = view === 'week' ? 'This week overview' : 'This month overview';
-    if (subtitle) subtitle.textContent = view === 'week' ? 'Last 7 days' : 'Last 30 days';
+    if (subtitle) subtitle.textContent = view === 'week' ? 'Last 7 days' : 'Last 31 days';
     const toggle = document.getElementById('viewToggle');
     if (toggle) toggle.style.display = '';
   } else {
@@ -2356,29 +2356,8 @@ function renderWeekChart(targetId) {
   const canvas = document.createElement('canvas');
   container.appendChild(canvas);
 
-  // Custom tooltip
-  const tooltipPlugin = {
-    id: 'barTooltip',
-    external: function(context) {
-      let tooltipEl = document.getElementById('chartjs-tooltip');
-      if (!tooltipEl) {
-        tooltipEl = document.createElement('div');
-        tooltipEl.id = 'chartjs-tooltip';
-        tooltipEl.style.cssText = 'position:fixed;pointer-events:none;background:#1a2332;color:#fff;font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:pre-line;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity .15s;opacity:0;';
-        document.body.appendChild(tooltipEl);
-      }
-      const tooltip = context.tooltip;
-      if (tooltip.opacity === 0) { tooltipEl.style.opacity = '0'; return; }
-      const idx = tooltip.dataPoints?.[0]?.dataIndex;
-      if (idx === undefined) return;
-      tooltipEl.textContent = tooltips[idx] || '';
-      const rect = context.chart.canvas.getBoundingClientRect();
-      tooltipEl.style.left = (rect.left + tooltip.caretX) + 'px';
-      tooltipEl.style.top = (rect.top + tooltip.caretY - 10) + 'px';
-      tooltipEl.style.transform = 'translate(-50%, -100%)';
-      tooltipEl.style.opacity = '1';
-    }
-  };
+  // Capture tooltips for built-in tooltip callbacks
+  const tooltipData = tooltips;
 
   const maxBarWidth = view === 'month' ? 20 : 34;
   chartInstances[containerId] = new Chart(canvas, {
@@ -2403,7 +2382,25 @@ function renderWeekChart(targetId) {
       },
       plugins: {
         legend: { display: false },
-        tooltip: { enabled: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: '#1a2332',
+          titleFont: { family: 'Manrope', size: 12, weight: '600' },
+          bodyFont: { family: 'Manrope', size: 12, weight: '600' },
+          padding: { top: 8, bottom: 8, left: 12, right: 12 },
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            title: function(items) {
+              const idx = items[0].dataIndex;
+              return tooltipData[idx] ? tooltipData[idx].split('\n')[0] : '';
+            },
+            label: function(item) {
+              const idx = item.dataIndex;
+              return tooltipData[idx] ? tooltipData[idx].split('\n')[1] || '' : '';
+            }
+          }
+        },
       },
       scales: {
         x: {
@@ -2422,7 +2419,6 @@ function renderWeekChart(targetId) {
       },
       animation: { duration: 400, easing: 'easeOutQuart' },
     },
-    plugins: [tooltipPlugin],
   });
 
   // Render summary footer on home page
@@ -2437,7 +2433,7 @@ function renderChartSummary(view) {
   container.innerHTML = '';
 
   const today = new Date();
-  const days = view === 'week' ? 7 : 30;
+  const days = view === 'week' ? 7 : 31;
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - (days - 1));
 
