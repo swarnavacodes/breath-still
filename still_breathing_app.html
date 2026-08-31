@@ -1253,6 +1253,33 @@ select:focus-visible,
   padding: 3px 10px;
   border-radius: 999px;
 }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 0 4px;
+}
+.page-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border-soft);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .15s;
+}
+.page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+.page-info {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
 .mb-20 { margin-bottom: 20px; }
 
 </style>
@@ -2873,7 +2900,10 @@ function renderHabitsChart() {
   renderWeekChart('habitsWeekChart');
 }
 
-function renderSessionHistoryTable() {
+let historyPage = 1;
+const HISTORY_PER_PAGE = 10;
+
+function renderSessionHistoryTable(page) {
   const container = document.getElementById('sessionHistoryTable');
   if (!container) return;
 
@@ -2883,6 +2913,10 @@ function renderSessionHistoryTable() {
   }
 
   const sorted = [...appState.sessions].sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+  const totalPages = Math.ceil(sorted.length / HISTORY_PER_PAGE);
+  historyPage = Math.max(1, Math.min(page || historyPage, totalPages));
+  const start = (historyPage - 1) * HISTORY_PER_PAGE;
+  const pageItems = sorted.slice(start, start + HISTORY_PER_PAGE);
 
   let html = `<table class="session-table">
     <thead><tr>
@@ -2893,11 +2927,11 @@ function renderSessionHistoryTable() {
       <th>Time</th>
     </tr></thead><tbody>`;
 
-  sorted.forEach(s => {
+  pageItems.forEach(s => {
     const pattern = breathingPatterns[s.pattern] || breathingPatterns['4-7-8'];
-    const start = new Date(s.startTime);
-    const dateStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const timeStr = start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const d = new Date(s.startTime);
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     const dur = s.duration || 0;
     const durStr = dur >= 60 ? `${Math.floor(dur / 60)}h ${dur % 60 > 0 ? dur % 60 + 'm' : ''}` : `${dur}m`;
     const cycles = s.targetCycles || s.cycles || '—';
@@ -2912,6 +2946,15 @@ function renderSessionHistoryTable() {
   });
 
   html += '</tbody></table>';
+
+  if (totalPages > 1) {
+    html += `<div class="pagination">
+      <button class="page-btn" onclick="renderSessionHistoryTable(${historyPage - 1})" ${historyPage === 1 ? 'disabled' : ''}>← Prev</button>
+      <span class="page-info">Page ${historyPage} of ${totalPages}</span>
+      <button class="page-btn" onclick="renderSessionHistoryTable(${historyPage + 1})" ${historyPage === totalPages ? 'disabled' : ''}>Next →</button>
+    </div>`;
+  }
+
   container.innerHTML = html;
 }
 
