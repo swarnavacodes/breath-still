@@ -662,35 +662,36 @@ select:focus-visible,
 
 .mood-trend-svg {
   position: absolute;
-  left: 14px;
-  right: 14px;
-  top: 20px;
-  height: 120px;
-  width: calc(100% - 28px);
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
   pointer-events: none;
   z-index: 2;
+  overflow: visible;
 }
-
-.mood-trend-svg.monthly { left: 4px; right: 4px; width: calc(100% - 8px); }
 
 .mood-trend-svg path.trend-line {
   fill: none;
   stroke: #f59e0b;
-  stroke-width: 2.5;
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+  stroke-dasharray: 4 3;
+  opacity: 0.85;
 }
 
 .mood-trend-svg path.trend-area {
   fill: url(#moodGradient);
-  opacity: 0.4;
+  opacity: 0.15;
 }
 
 .mood-trend-svg circle.trend-dot {
   fill: #f59e0b;
   stroke: #fff;
-  stroke-width: 2;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  stroke-width: 1.5;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
 }
 
 .chart-legend {
@@ -2539,54 +2540,39 @@ function renderWeekChart(targetId) {
 }
 
 function renderMoodTrend(container, points, totalDays, chartHeight, view) {
-  // Build SVG path for mood line
-  // Mood values are 1-5. Map: 1 (low) -> bottom, 5 (high) -> top
-  // Reserve 10% padding top/bottom for dot visibility
-  const padTop = chartHeight * 0.05;
-  const padBottom = chartHeight * 0.05;
-  const usableHeight = chartHeight - padTop - padBottom;
-
-  // Calculate x position for each point (0-based, evenly distributed)
-  // For monthly view, account for 4 week dividers (4 extra slots)
-  const xSlots = view === 'month' ? totalDays + 4 : totalDays;
-  const xStep = 100 / (xSlots - 1);
-
   // Get all available mood values
   const availablePoints = points.filter(p => p.mood !== null);
   if (availablePoints.length === 0) return;
 
+  // Map mood (1-5) to y position (higher mood = lower y value)
+  // Reserve small padding top/bottom for dot visibility
+  const padTop = chartHeight * 0.08;
+  const padBottom = chartHeight * 0.08;
+  const usableHeight = chartHeight - padTop - padBottom;
+
   // Build the path coordinates
-  const coords = points.map((p, idx) => {
-    if (p.mood === null) return null;
-    // Calculate actual x position considering dividers
-    let xPercent;
-    if (view === 'month') {
-      // The days are rendered in order from oldest to newest (i=29 down to i=0)
-      // but we pushed in that order. Day 29 (oldest) is at the left.
-      // For monthly view, dividers are added every 7 days at positions where i % 7 === 0 && i !== 0
-      // i=29 starts at left, i=0 ends at right
-      // Dividers appear at i=28, 21, 14, 7 (4 dividers)
-      // Total visual slots = 30 days + 4 dividers = 34
-      // x position for day index from old to new (29 to 0):
-      // We need to map the index to visual position
-      // Actually, our points array is in the order they were created (i=29, 28, ..., 0)
-      // So index 0 in the array is the leftmost (oldest day)
-      // For view='month' with dividers at i=28,21,14,7:
-      // Each divider adds 1 extra slot
-      let dividersBefore = 0;
-      for (let d = 29; d > 29 - idx; d--) {
-        if (d % 7 === 0 && d !== 0) dividersBefore++;
-      }
-      const visualIndex = idx + dividersBefore;
-      xPercent = (visualIndex / (totalDays + 4 - 1)) * 100;
-    } else {
-      xPercent = (idx / (totalDays - 1)) * 100;
-    }
-    // Map mood (1-5) to y position (higher mood = lower y value)
+  // For each available point, find the corresponding bar element
+  // and position the dot at its center
+  const coords = [];
+  const barEls = container.querySelectorAll('.week-bar');
+
+  points.forEach((p, idx) => {
+    if (p.mood === null) return;
+    // Find the bar element at this index (skip dividers)
+    const barEl = barEls[idx];
+    if (!barEl) return;
+
+    // Get the bar's center relative to the container
+    const barRect = barEl.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const centerX = (barRect.left + barRect.width / 2) - containerRect.left;
+    const xPercent = (centerX / containerRect.width) * 100;
+
+    // Map mood (1-5) to y position
     const moodPercent = (p.mood - 1) / 4; // 0 to 1
     const yPx = padTop + (1 - moodPercent) * usableHeight;
-    return { x: xPercent, y: yPx, mood: p.mood, idx };
-  }).filter(c => c !== null);
+    coords.push({ x: xPercent, y: yPx, mood: p.mood, idx });
+  });
 
   if (coords.length === 0) return;
 
@@ -2605,7 +2591,7 @@ function renderMoodTrend(container, points, totalDays, chartHeight, view) {
   svg.setAttribute('class', 'mood-trend-svg' + (view === 'month' ? ' monthly' : ''));
   svg.setAttribute('viewBox', `0 0 100 ${chartHeight}`);
   svg.setAttribute('preserveAspectRatio', 'none');
-  svg.style.height = chartHeight + 'px';
+  svg.style.height = '100%';
 
   svg.innerHTML = `
     <defs>
