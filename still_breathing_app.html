@@ -2420,7 +2420,7 @@ function renderWeekChart(targetId) {
 
     const totalMinutes = daySessions.reduce((sum, s) => sum + (s.duration || 0), 0);
     const sessionCount = daySessions.length;
-    const height = Math.min((totalMinutes / maxMinutes) * 100, 100);
+    const height = Math.min((totalMinutes / maxMinutes) * 120, 120);
 
     // Format date for tooltip
     const dateLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -2438,7 +2438,7 @@ function renderWeekChart(targetId) {
 
     barEl.innerHTML = `
       ${countBadge}
-      <div class="bar ${totalMinutes > 0 ? 'active' : ''}" style="height: ${height || 4}%"></div>
+      <div class="bar ${totalMinutes > 0 ? 'active' : ''}" style="height: ${height || 10}px"></div>
       <span class="bar-label">${labelText}</span>
       ${view === 'week' ? `<span class="bar-value">${totalMinutes} min</span>` : ''}
     `;
