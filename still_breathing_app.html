@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Still — Breathing & Self-Awareness</title>
+<link rel="icon" href="meditation-logo.png"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
@@ -581,24 +582,42 @@ select:focus-visible,
 }
 
 .streak-label { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; }
-.streak-week { display: flex; gap: 10px; justify-content: space-between; }
-.streak-day { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.streak-day .day-label { font-size: 10.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
+.streak-week { display: flex; gap: 12px; justify-content: space-between; }
+.streak-day { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+.streak-day .day-label { font-size: 10.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
 
 .streak-day .day-dot {
-  width: 30px;
-  height: 30px;
+  position: relative;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 13px;
-  transition: background .18s;
+  transition: background .2s;
 }
 
-.streak-day .day-dot.empty { background: var(--border-soft); color: var(--muted-soft); }
+.streak-day .day-dot.empty {
+  background: #eef0f3;
+  border: none;
+}
+
+.streak-day .day-dot.today::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  opacity: 0.5;
+}
+
+.streak-day .day-check { display: block; }
+.streak-day .day-check path {
+  stroke-dasharray: 22;
+  stroke-dashoffset: 0;
+}
 
 /* Bottom Grid */
 .bottom-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
@@ -1087,6 +1106,7 @@ select:focus-visible,
 
 @media (prefers-reduced-motion: reduce) {
   .complete-ripple { animation: none; opacity: 0; }
+  .streak-day .day-dot, .streak-day .day-dot.empty { animation: none; }
 }
 
 /* Breathing Circle with Progress Ring */
@@ -2548,9 +2568,12 @@ function renderStreakWeek() {
     
     const dayEl = document.createElement('div');
     dayEl.className = 'streak-day';
+    dayEl.style.setProperty('--i', i);
     dayEl.innerHTML = `
       <span class="day-label">${days[dayIndex]}</span>
-      <div class="day-dot ${hasPractice ? '' : 'empty'}">${hasPractice ? '✓' : ''}</div>
+      <div class="day-dot ${hasPractice ? (i === 0 ? 'today' : '') : 'empty'}">
+        ${hasPractice ? '<svg class="day-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>' : ''}
+      </div>
     `;
     container.appendChild(dayEl);
   }
@@ -3216,7 +3239,13 @@ function renderSessionHistoryTable(page) {
 }
 
 function updateInsights() {
-  const weeklySessions = updateTodayProgress();
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+  const weekSessions = appState.sessions.filter(s => new Date(s.startTime) >= weekStart);
+
+  const weeklySessions = weekSessions.length;
   const totalMinutes = appState.sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
   
   document.getElementById('weeklySessions').textContent = weeklySessions;
@@ -3231,13 +3260,6 @@ function updateInsights() {
     document.getElementById('insightsText').innerHTML = '<p>Start your breathing practice to see personalized insights.</p>';
     return;
   }
-
-  // This week's sessions
-  const now = new Date();
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
-  weekStart.setHours(0, 0, 0, 0);
-  const weekSessions = appState.sessions.filter(s => new Date(s.startTime) >= weekStart);
 
   // All-time sessions for broader insights
   const allSessions = appState.sessions;

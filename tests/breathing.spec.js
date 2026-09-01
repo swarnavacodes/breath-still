@@ -242,15 +242,12 @@ test('Practice cards have consistent height and alignment', async ({ page }) => 
     btnYs.push(Math.round(btnBox.y - cardBox.y));
   }
 
-  // All cards should have the same height
-  const uniqueHeights = [...new Set(heights)];
-  expect(uniqueHeights.length).toBeLessThanOrEqual(2); // allow ±1px rounding
+  // All cards should have the same height (±2px for sub-pixel rounding)
+  expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(2);
 
-  // All timing rows should start at the same offset from card top
-  const uniqueTimingYs = [...new Set(timingYs)];
-  expect(uniqueTimingYs.length).toBeLessThanOrEqual(2);
+  // All timing rows should start at the same offset from card top (±2px)
+  expect(Math.max(...timingYs) - Math.min(...timingYs)).toBeLessThanOrEqual(2);
 
-  // All buttons should be at the same offset from card top
-  const uniqueBtnYs = [...new Set(btnYs)];
-  expect(uniqueBtnYs.length).toBeLessThanOrEqual(2);
+  // All buttons should be at the same offset from card top (±2px)
+  expect(Math.max(...btnYs) - Math.min(...btnYs)).toBeLessThanOrEqual(2);
 });
