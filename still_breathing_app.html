@@ -1234,7 +1234,8 @@ select:focus-visible,
 .setting-label p { font-size: 12.5px; color: var(--muted); }
 
 .setting-control select,
-.setting-control input[type="text"] {
+.setting-control input[type="text"],
+.setting-control input[type="time"] {
   padding: 10px 15px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
@@ -1246,7 +1247,8 @@ select:focus-visible,
 }
 
 .setting-control select:focus,
-.setting-control input[type="text"]:focus {
+.setting-control input[type="text"]:focus,
+.setting-control input[type="time"]:focus {
   outline: none;
   border-color: var(--primary);
   background: var(--surface);
@@ -1813,6 +1815,49 @@ select:focus-visible,
     </div>
 
     <div class="settings-section">
+      <h3>Reminders</h3>
+      <div class="setting-item">
+        <div class="setting-label">
+          <h4>Enable reminders</h4>
+          <p>Get notified to practice breathing</p>
+        </div>
+        <div class="setting-control">
+          <input type="checkbox" id="reminderEnabled" onchange="toggleReminders()">
+        </div>
+      </div>
+
+      <div class="setting-item" id="reminderTimeRow1">
+        <div class="setting-label">
+          <h4>Morning reminder</h4>
+          <p>Start your day mindfully</p>
+        </div>
+        <div class="setting-control">
+          <input type="time" id="reminderTime1" value="08:00" onchange="saveReminderTimes()">
+        </div>
+      </div>
+
+      <div class="setting-item" id="reminderTimeRow2">
+        <div class="setting-label">
+          <h4>Evening reminder</h4>
+          <p>Wind down before bed</p>
+        </div>
+        <div class="setting-control">
+          <input type="time" id="reminderTime2" value="21:00" onchange="saveReminderTimes()">
+        </div>
+      </div>
+
+      <div class="setting-item" id="reminderPermRow">
+        <div class="setting-label">
+          <h4>Notification permission</h4>
+          <p id="reminderPermStatus">Check your browser settings</p>
+        </div>
+        <div class="setting-control">
+          <button class="control-btn secondary" onclick="requestNotifPermission()" id="reminderPermBtn">Allow</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <h3>Data</h3>
       <div class="setting-item">
         <div class="setting-label">
@@ -1902,7 +1947,8 @@ const appState = {
   lastPracticeDate: null,
   currentSession: null,
   soundEnabled: true,
-  cycleCounts: { '4-7-8': 5, 'box': 5, '4-6': 5, '5-5': 5 }
+  cycleCounts: { '4-7-8': 5, 'box': 5, '4-6': 5, '5-5': 5 },
+  reminders: { enabled: false, time1: '08:00', time2: '21:00' }
 };
 
 function getCycleDuration(key) {
@@ -2069,6 +2115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBenefits();
   updateGreeting();
   updateDateDisplay();
+  initReminders();
 });
 
 function initializeChartToggle() {
@@ -3399,6 +3446,137 @@ function updateDateDisplay() {
 
 // Set random daily tip
 document.getElementById('dailyTip').textContent = dailyTips[Math.floor(Math.random() * dailyTips.length)];
+
+// --- Reminders ---
+let reminderIntervalId = null;
+
+function toggleReminders() {
+  appState.reminders.enabled = document.getElementById('reminderEnabled').checked;
+  saveData();
+  if (appState.reminders.enabled) {
+    checkNotificationPermission();
+    startReminderCheck();
+  } else {
+    stopReminderCheck();
+  }
+  updateReminderUI();
+}
+
+function saveReminderTimes() {
+  appState.reminders.time1 = document.getElementById('reminderTime1').value;
+  appState.reminders.time2 = document.getElementById('reminderTime2').value;
+  saveData();
+}
+
+function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    document.getElementById('reminderPermStatus').textContent = 'Not supported in this browser';
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    updateReminderUI();
+  });
+}
+
+function checkNotificationPermission() {
+  if (!('Notification' in window)) return false;
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
+  return false;
+}
+
+function sendReminder(title, body) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    new Notification(title, {
+      body,
+      icon: 'meditation-logo.png',
+      badge: 'meditation-logo.png',
+      tag: 'still-reminder',
+      renotify: true
+    });
+  } catch (e) {}
+}
+
+function checkReminders() {
+  if (!appState.reminders.enabled) return;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const currentTime = `${hh}:${mm}`;
+
+  if (currentTime === appState.reminders.time1) {
+    sendReminder('Morning breath', 'Time for your morning breathing session.');
+  }
+  if (currentTime === appState.reminders.time2) {
+    sendReminder('Evening breath', 'Wind down with a calming breathing session.');
+  }
+}
+
+function startReminderCheck() {
+  stopReminderCheck();
+  reminderIntervalId = setInterval(checkReminders, 30000);
+  checkReminders();
+}
+
+function stopReminderCheck() {
+  if (reminderIntervalId) {
+    clearInterval(reminderIntervalId);
+    reminderIntervalId = null;
+  }
+}
+
+function updateReminderUI() {
+  const r = appState.reminders || { enabled: false, time1: '08:00', time2: '21:00' };
+  document.getElementById('reminderEnabled').checked = r.enabled;
+  document.getElementById('reminderTime1').value = r.time1 || '08:00';
+  document.getElementById('reminderTime2').value = r.time2 || '21:00';
+
+  const permStatus = document.getElementById('reminderPermStatus');
+  const permBtn = document.getElementById('reminderPermBtn');
+  if (!('Notification' in window)) {
+    permStatus.textContent = 'Not supported';
+    permBtn.style.display = 'none';
+  } else if (Notification.permission === 'granted') {
+    permStatus.textContent = 'Allowed';
+    permStatus.style.color = 'var(--primary)';
+    permBtn.style.display = 'none';
+  } else if (Notification.permission === 'denied') {
+    permStatus.textContent = 'Blocked — enable in browser settings';
+    permStatus.style.color = '#e06c75';
+    permBtn.style.display = 'none';
+  } else {
+    permStatus.textContent = 'Not yet allowed';
+    permBtn.style.display = '';
+  }
+
+  const bellDot = document.querySelector('.notification-btn');
+  if (bellDot) {
+    bellDot.style.opacity = r.enabled ? '1' : '0.6';
+  }
+}
+
+// Wire bell icon to settings
+document.querySelector('.notification-btn').addEventListener('click', () => {
+  navigateTo('settings');
+  setTimeout(() => {
+    const el = document.getElementById('reminderEnabled');
+    if (el) el.closest('.settings-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+});
+
+// Initialize reminders on load
+function initReminders() {
+  if (!appState.reminders) {
+    appState.reminders = { enabled: false, time1: '08:00', time2: '21:00' };
+  }
+  updateReminderUI();
+  if (appState.reminders.enabled) {
+    startReminderCheck();
+  }
+}
 </script>
 
 </body>
