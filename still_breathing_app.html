@@ -2686,6 +2686,26 @@ function updateDisplay() {
   if (homeCycleEl) {
     homeCycleEl.textContent = appState.cycleCounts[appState.defaultPractice] || 5;
   }
+
+  // Update home breathing card to match default practice
+  const key = appState.defaultPractice;
+  const pattern = breathingPatterns[key];
+  if (pattern) {
+    const nameEl = document.getElementById('homeBreathName');
+    const descEl = document.getElementById('homeBreathDesc');
+    const timersEl = document.getElementById('homeBreathTimers');
+    if (nameEl) nameEl.textContent = pattern.name;
+    if (descEl) descEl.textContent = pattern.description;
+    if (timersEl) {
+      const phases = [];
+      if (pattern.inhale) phases.push({ time: pattern.inhale, label: 'Inhale' });
+      if (pattern.hold) phases.push({ time: pattern.hold, label: 'Hold' });
+      phases.push({ time: pattern.exhale, label: 'Exhale' });
+      timersEl.innerHTML = phases.map((p, i) =>
+        `<div class="timer-box${i === 0 ? ' active' : ''}"><div class="time">${p.time}s</div><div class="label">${p.label}</div></div>`
+      ).join('');
+    }
+  }
   
   const goal = appState.dailyGoal;
   let message = 'Keep going!';
