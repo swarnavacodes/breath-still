@@ -65,6 +65,8 @@ test('Mood emoji buttons render on mood page', async ({ page }) => {
 });
 
 test('Home mood note input exists', async ({ page }) => {
+  // Mood card is collapsed by default — expand it first
+  await page.locator('.mood-expand-btn').click();
   await expect(page.locator('#moodNote')).toBeVisible();
 });
 

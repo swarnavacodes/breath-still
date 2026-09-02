@@ -552,6 +552,23 @@ select:focus-visible,
 /* Confidence selector */
 .confidence-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
 .confidence-section + .save-btn { margin-top: 18px; }
+
+/* Collapsible mood card */
+.mood-expand-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 6px;
+  font-family: inherit;
+  transition: opacity .15s;
+}
+.mood-expand-btn:hover { opacity: 0.7; }
+.mood-expanded { display: none; }
+.mood-expanded.open { display: block; }
 .confidence-label { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
 .confidence-row { display: flex; gap: 6px; }
 .confidence-btn {
@@ -560,7 +577,7 @@ select:focus-visible,
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 8px 4px;
+  padding: 12px 8px;
   border: 1.5px solid var(--border-soft);
   border-radius: var(--radius-sm);
   background: var(--bg);
@@ -808,13 +825,13 @@ select:focus-visible,
   font-weight: 600;
 }
 .cycle-btn {
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1.5px solid var(--border-soft);
   background: var(--surface);
   color: var(--ink);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -1006,8 +1023,8 @@ select:focus-visible,
   transition: all .18s;
   background: none;
   border: none;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1340,6 +1357,15 @@ select:focus-visible,
 }
 
 /* Utility */
+.empty-state {
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--muted);
+}
+.empty-state p {
+  font-size: 14px;
+  margin-bottom: 14px;
+}
 .hidden { display: none !important; }
 .text-center { text-align: center; }
 .mt-20 { margin-top: 20px; }
@@ -1531,18 +1557,21 @@ select:focus-visible,
           <div class="mood-emoji" data-mood="4" title="Happy"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
           <div class="mood-emoji" data-mood="5" title="Very Happy"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></div>
         </div>
-        <textarea class="mood-note" placeholder="Optional note" id="moodNote"></textarea>
-        <div class="confidence-section">
-          <div class="confidence-label">How confident do you feel?</div>
-          <div class="confidence-row" id="homeConfidence">
-            <button class="confidence-btn" data-conf="1"><span class="num">1</span><span class="lbl">Shaky</span></button>
-            <button class="confidence-btn" data-conf="2"><span class="num">2</span><span class="lbl">Unsure</span></button>
-            <button class="confidence-btn" data-conf="3"><span class="num">3</span><span class="lbl">Steady</span></button>
-            <button class="confidence-btn" data-conf="4"><span class="num">4</span><span class="lbl">Strong</span></button>
-            <button class="confidence-btn" data-conf="5"><span class="num">5</span><span class="lbl">Unshakable</span></button>
+        <button class="mood-expand-btn" onclick="toggleMoodExpand(this)">Add note & confidence</button>
+        <div class="mood-expanded">
+          <textarea class="mood-note" placeholder="Optional note" id="moodNote"></textarea>
+          <div class="confidence-section">
+            <div class="confidence-label">How confident do you feel?</div>
+            <div class="confidence-row" id="homeConfidence">
+              <button class="confidence-btn" data-conf="1"><span class="num">1</span><span class="lbl">Shaky</span></button>
+              <button class="confidence-btn" data-conf="2"><span class="num">2</span><span class="lbl">Unsure</span></button>
+              <button class="confidence-btn" data-conf="3"><span class="num">3</span><span class="lbl">Steady</span></button>
+              <button class="confidence-btn" data-conf="4"><span class="num">4</span><span class="lbl">Strong</span></button>
+              <button class="confidence-btn" data-conf="5"><span class="num">5</span><span class="lbl">Unshakable</span></button>
+            </div>
           </div>
+          <button class="save-btn" onclick="saveMood()">Save</button>
         </div>
-        <button class="save-btn" onclick="saveMood()">Save</button>
       </div>
 
       <!-- Habit Streak -->
@@ -1735,7 +1764,10 @@ select:focus-visible,
         </div>
         <p style="color: #868e96; font-size: 14px; margin-bottom: 16px;">Based on your check-ins</p>
         <div id="practiceMoodInsight">
-          <p style="color: #868e96;">Complete more sessions to see insights.</p>
+          <div class="empty-state">
+            <p>Complete more sessions to see insights.</p>
+            <button class="control-btn primary" onclick="navigateTo('breathe')">Start practicing</button>
+          </div>
         </div>
       </div>
 
@@ -1787,7 +1819,10 @@ select:focus-visible,
         <h4>All sessions</h4>
       </div>
       <div id="sessionHistory">
-        <p style="color: #868e96; text-align: center; padding: 40px;">No sessions yet. Start your first breathing practice!</p>
+        <div class="empty-state">
+          <p>No sessions yet.</p>
+          <button class="control-btn primary" onclick="navigateTo('breathe')">Start your first session</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2233,6 +2268,16 @@ function initializeMoodSelectors() {
     emoji.addEventListener('click', function() {
       this.parentElement.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
       this.classList.add('selected');
+      // Auto-expand home mood card on emoji click
+      const card = this.closest('.card');
+      if (card) {
+        const expanded = card.querySelector('.mood-expanded');
+        const btn = card.querySelector('.mood-expand-btn');
+        if (expanded && !expanded.classList.contains('open')) {
+          expanded.classList.add('open');
+          if (btn) btn.textContent = 'Less';
+        }
+      }
     });
   });
   document.querySelectorAll('.confidence-row').forEach(row => {
@@ -2243,6 +2288,12 @@ function initializeMoodSelectors() {
       });
     });
   });
+}
+
+function toggleMoodExpand(btn) {
+  const expanded = btn.nextElementSibling;
+  const isOpen = expanded.classList.toggle('open');
+  btn.textContent = isOpen ? 'Less' : 'Add note & confidence';
 }
 
 function getSelectedConfidence(containerSelector) {
@@ -2281,6 +2332,12 @@ async function saveMood() {
   document.getElementById('moodNote').value = '';
   document.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
   clearConfidence('#home .card');
+
+  // Collapse the mood card
+  const homeMoodCard = document.querySelector('#home .mood-expanded');
+  const homeMoodBtn = document.querySelector('#home .mood-expand-btn');
+  if (homeMoodCard) homeMoodCard.classList.remove('open');
+  if (homeMoodBtn) homeMoodBtn.textContent = 'Add note & confidence';
 
   await showPopup('Mood saved!', 'success');
   updateInsights();
@@ -2415,6 +2472,7 @@ function startBreathingCycle(pattern) {
   scaleBreathOrb(1.14, pattern.inhale);
   spawnBreathRipple();
   phaseText.textContent = 'Inhale';
+  haptic(12);
   countdown.textContent = pattern.inhale;
 
   let timeLeft = pattern.inhale;
@@ -2428,6 +2486,7 @@ function startBreathingCycle(pattern) {
       if (pattern.hold > 0) {
         // Hold
         phaseText.textContent = 'Hold';
+        haptic(12);
         countdown.textContent = pattern.hold;
         timeLeft = pattern.hold;
 
@@ -2451,6 +2510,7 @@ function startBreathingCycle(pattern) {
   function startExhale() {
     scaleBreathOrb(1.0, pattern.exhale);
     phaseText.textContent = 'Exhale';
+    haptic(12);
     countdown.textContent = pattern.exhale;
     timeLeft = pattern.exhale;
 
@@ -2470,7 +2530,7 @@ function startBreathingCycle(pattern) {
   }
 }
 
-async function pauseSession() {
+async function pauseSession(showPrompt = true) {
   if (!appState.currentSession) return;
 
   isPaused = true;
@@ -2496,9 +2556,13 @@ async function pauseSession() {
   document.getElementById('phaseText').textContent = 'Paused';
   document.getElementById('countdown').textContent = '—';
 
-  await showPopup('Session paused. Click OK to resume.', 'info');
+  if (showPrompt) {
+    await showPopup('Session paused. Click OK to resume.', 'info');
+    resumeSession();
+  }
+}
 
-  // Resume
+function resumeSession() {
   isPaused = false;
   startSessionCountdown();
   const pattern = breathingPatterns[appState.currentSession.pattern];
@@ -2508,6 +2572,7 @@ async function pauseSession() {
 }
 
 function finishSession(isEarly) {
+  haptic(30);
   if (sessionInterval) {
     clearInterval(sessionInterval);
     sessionInterval = null;
@@ -3058,7 +3123,7 @@ function renderSessionHistory() {
   const container = document.getElementById('sessionHistory');
   
   if (appState.sessions.length === 0) {
-    container.innerHTML = '<p style="color: #868e96; text-align: center; padding: 40px;">No sessions yet. Start your first breathing practice!</p>';
+    container.innerHTML = '<div class="empty-state"><p>No sessions yet.</p><button class="control-btn primary" onclick="navigateTo(\'breathe\')">Start your first session</button></div>';
     return;
   }
   
@@ -3097,7 +3162,7 @@ function renderMoodHistory() {
   if (appState.moodCheckins.length === 0) {
     if (lastFiveEl) lastFiveEl.innerHTML = '';
     if (chartEl) chartEl.innerHTML = '';
-    container.innerHTML = '<p style="color: #868e96; text-align: center; padding: 40px;">No mood check-ins yet. Start tracking your mood!</p>';
+    container.innerHTML = '<div class="empty-state"><p>No mood check-ins yet.</p><button class="control-btn primary" onclick="document.querySelector(\'#mood .mood-emoji[data-mood=\\\'3\\\']\').click(); document.querySelector(\'#mood\').scrollIntoView({behavior:\'smooth\'})">Log your mood</button></div>';
     return;
   }
 
@@ -3275,7 +3340,7 @@ function renderSessionHistoryTable(page) {
   if (!container) return;
 
   if (appState.sessions.length === 0) {
-    container.innerHTML = '<p class="empty-msg">No sessions yet. Start your first breathing practice!</p>';
+    container.innerHTML = '<div class="empty-state"><p>No sessions yet.</p><button class="control-btn primary" onclick="navigateTo(\'breathe\')">Start a session</button></div>';
     return;
   }
 
@@ -3343,7 +3408,7 @@ function updateInsights() {
   renderSessionHistoryTable();
   
   if (appState.sessions.length === 0) {
-    insightsContainer.innerHTML = '<p style="color: #868e96;">Complete more sessions to see insights.</p>';
+    insightsContainer.innerHTML = '<div class="empty-state"><p>Complete more sessions to see insights.</p><button class="control-btn primary" onclick="navigateTo(\'breathe\')">Start practicing</button></div>';
     document.getElementById('insightsText').innerHTML = '<p>Start your breathing practice to see personalized insights.</p>';
     return;
   }
@@ -3605,6 +3670,27 @@ document.querySelector('.notification-btn').addEventListener('click', () => {
     const el = document.getElementById('reminderEnabled');
     if (el) el.closest('.settings-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 100);
+});
+
+// --- Haptics ---
+function haptic(ms) {
+  if (navigator.vibrate) navigator.vibrate(ms);
+}
+
+// --- Tab visibility auto-pause ---
+let autoPaused = false;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && appState.currentSession && !isPaused) {
+    autoPaused = true;
+    pauseSession(false);
+  } else if (!document.hidden && autoPaused && appState.currentSession) {
+    autoPaused = false;
+    showPopup('Welcome back. Ready to resume?', 'info', true).then(ok => {
+      if (ok) resumeSession();
+      else { appState.currentSession = null; saveData(); closeSessionModal(); }
+    });
+  }
 });
 
 // Initialize reminders on load
